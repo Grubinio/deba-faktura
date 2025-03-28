@@ -76,3 +76,31 @@ def home():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/admin')
+def admin_dashboard():
+    if 'user' not in session or session['user'] != 'admin':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, username FROM users ORDER BY id ASC")
+    users = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('admin.html', users=users)
+
+@app.route('/admin/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user' not in session or session['user'] != 'admin':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('admin_dashboard'))
