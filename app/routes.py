@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, url_for
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+from flask import render_template, request, redirect, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
+from app import app
 
 # MySQL-Verbindung (einfache Variante)
 def get_db_connection():
