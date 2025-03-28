@@ -45,23 +45,22 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'user' not in session or session['user'] != 'admin':
+        return redirect(url_for('login'))  # oder: return "Zugriff verweigert", 403
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         hashed_password = generate_password_hash(password)
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-
             cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
             conn.commit()
-
             cursor.close()
             conn.close()
             return redirect(url_for('login'))
-
         except mysql.connector.IntegrityError:
             return "Benutzername existiert bereits!", 409
 
