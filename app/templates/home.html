@@ -1,9 +1,57 @@
 {% extends 'base.html' %}
-{% block title %}Startseite{% endblock %}
+{% block title %}Startseite – DEBA Faktura{% endblock %}
+
 {% block content %}
-  <div class="container mt-5">
-    <h2 class="mb-4">Hallo, {{ user }} 👋</h2>
-    <a href="http://46.38.237.242/admin">Admin</a>
+<div class="container mt-5">
+  <h2 class="mb-4">Willkommen, {{ user }} 👋</h2>
+
+  <!-- 📘 Anleitung -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      📘 Anleitung zur Nutzung der Faktura-App
+    </div>
+    <div class="card-body">
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam a sem eget nulla sodales facilisis.
+        Integer vel porta tortor, ut tempor nunc. Duis id fermentum nunc. Sed nec sem nec velit gravida sagittis.
+      </p>
+    </div>
+  </div>
+
+  <!-- 📊 Aktuelle Aufträge -->
+  <div class="card">
+    <div class="card-header bg-secondary text-white">
+      📊 Aktuelle Aufträge
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Auftragsnr.</th>
+            <th>Bezeichnung</th>
+            <th>Kunde</th>
+            <th>Badtypen</th>
+            <th>Bäder</th>
+            <th>Produziert</th>
+            <th>Ausgeliefert</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="{{ url_for('auftrag_detail', auftrag_id=1) }}">DEBA-2024-001</a></td>
+            <td><a href="{{ url_for('auftrag_detail', auftrag_id=1) }}">Projekt HafenCity Hamburg</a></td>
+            <td><a href="{{ url_for('kunde_detail', kunde_id=12) }}">HOCHTIEF</a></td>
+            <td>3</td>
+            <td>48</td>
+            <td>12</td>
+            <td>6</td>
+            <td><span class="badge bg-warning text-dark">In Produktion</span></td>
+          </tr>
+          <!-- weitere Dummy-Zeilen möglich -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-  <p>Hier wird später dein Dashboard sein.</p>
 {% endblock %}
