@@ -26,8 +26,12 @@
 
   <!-- 📊 Aktuelle Aufträge -->
   <div class="card">
-    <div class="card-header bg-secondary text-white">
-      📊 Aktuelle Aufträge
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+      <span>📊 Aktuelle Aufträge</span>
+      <div>
+        <a href="{{ url_for('neuer_auftrag') }}" class="btn btn-sm btn-light me-2">➕ Neuer Auftrag</a>
+        <a href="{{ url_for('filter_auftraege') }}" class="btn btn-sm btn-outline-light">🔍 Filter</a>
+      </div>
     </div>
     <div class="card-body p-0">
       <table class="table table-striped table-hover mb-0">
