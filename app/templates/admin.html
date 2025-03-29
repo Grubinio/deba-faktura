@@ -1,65 +1,85 @@
 {% extends 'base.html' %}
-{% block title %}Startseite{% endblock %}
-{% block content %}
-  <div class="container mt-5">
-    <h2>👤 Benutzerverwaltung</h2>
-    <table class="table table-striped mt-4">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Benutzername</th>
-          <th>E-Mail</th>
-          <th>Funktion</th>
-          <th>Letzter Login</th>
-          <th>Aktionen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-        <tr>
-          <td>{{ user.id }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email or '–' }}</td>
-          <td>{{ user.funktion or '–' }}</td>
-          <td>{{ user.last_login or '–' }}</td>
-          <td>
-            {% if user.username != 'admin' %}
-            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post" style="display:inline;">
-              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Wirklich löschen?');">🗑️ Löschen</button>
-            </form>
-            {% else %}
-            <span class="text-muted">geschützt</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+{% block title %}Adminbereich – DEBA Faktura{% endblock %}
 
-    <div class="mt-5">
-      <h3>➕ Benutzer registrieren</h3>
-      <form method="POST" action="{{ url_for('register') }}">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="username" class="form-label">Benutzername</label>
-            <input type="text" class="form-control" id="username" name="username" required>
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-4">👤 Benutzerverwaltung</h2>
+    <!-- Benutzerliste -->
+    <div class="card shadow-sm mb-5">
+      <div class="card-header bg-primary text-white">
+        Bestehende Benutzer
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Benutzername</th>
+              <th scope="col">E-Mail</th>
+              <th scope="col">Funktion</th>
+              <th scope="col">Letzter Login</th>
+              <th scope="col">Aktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email or '–' }}</td>
+                <td>{{ user.funktion or '–' }}</td>
+                <td>{{ user.last_login or '–' }}</td>
+                <td>
+                  {% if user.username != 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Wirklich löschen?');">🗑️</button>
+                    </form>
+                  {% else %}
+                    <span class="text-muted">🔒 geschützt</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Benutzer hinzufügen -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        ➕ Benutzer anlegen
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="username" class="form-label">Benutzername</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="email" class="form-label">E-Mail-Adresse</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="funktion" class="form-label">Funktion</label>
+              <input type="text" class="form-control" id="funktion" name="funktion" placeholder="z. B. admin, user">
+            </div>
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="email" class="form-label">E-Mail</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="password" class="form-label">Passwort</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="funktion" class="form-label">Funktion</label>
-            <input type="text" class="form-control" id="funktion" name="funktion">
+
+          <div class="d-flex justify-content-between">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Zurück</a>
+            <button type="submit" class="btn btn-success">Benutzer anlegen</button>
           </div>
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Passwort</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">✔ Benutzer anlegen</button>
-        <a href="{{ url_for('home') }}" class="btn btn-secondary">Zurück</a>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-  {% endblock %}
+{% endblock %}
