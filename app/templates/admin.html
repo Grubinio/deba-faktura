@@ -13,6 +13,9 @@
         <tr>
           <th>ID</th>
           <th>Benutzername</th>
+          <th>E-Mail</th>
+          <th>Funktion</th>
+          <th>Letzter Login</th>
           <th>Aktionen</th>
         </tr>
       </thead>
@@ -21,6 +24,9 @@
         <tr>
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
+          <td>{{ user.email or '–' }}</td>
+          <td>{{ user.funktion or '–' }}</td>
+          <td>{{ user.last_login or '–' }}</td>
           <td>
             {% if user.username != 'admin' %}
             <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post" style="display:inline;">
@@ -34,22 +40,32 @@
         {% endfor %}
       </tbody>
     </table>
-    <div class="container mt-5">
-      <h2>Benutzer registrieren</h2>
+
+    <div class="mt-5">
+      <h3>➕ Benutzer registrieren</h3>
       <form method="POST" action="{{ url_for('register') }}">
-        <div class="mb-3">
-          <label for="username" class="form-label">Benutzername</label>
-          <input type="text" class="form-control" id="username" name="username" required>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="username" class="form-label">Benutzername</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="email" class="form-label">E-Mail</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="funktion" class="form-label">Funktion</label>
+            <input type="text" class="form-control" id="funktion" name="funktion">
+          </div>
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Passwort</label>
           <input type="password" class="form-control" id="password" name="password" required>
         </div>
-        <button type="submit" class="btn btn-primary">Registrieren</button>
-        <a href="{{ url_for('login') }}" class="btn btn-link">Zum Login</a>
+        <button type="submit" class="btn btn-primary">✔ Benutzer anlegen</button>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Zurück</a>
       </form>
     </div>
-    <a href="{{ url_for('home') }}" class="btn btn-secondary">Zurück</a>
   </div>
 </body>
 </html>

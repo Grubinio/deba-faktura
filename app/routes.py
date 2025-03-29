@@ -33,6 +33,13 @@ def login():
 
         if user and check_password_hash(user['password_hash'], password):
             session['user'] = user['username']
+            # ➕ Login-Zeit speichern
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
+            conn.commit()
+            cursor.close()
+            conn.close()
             return redirect(url_for('home'))
         else:
             return "Login fehlgeschlagen", 401
@@ -43,25 +50,32 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'user' not in session or session['user'] != 'admin':
-        return redirect(url_for('login'))  # oder: return "Zugriff verweigert", 403
+        return redirect(url_for('login'))  # Zugriff nur für Admin
 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form['email']
+        funktion = request.form['funktion']
+
         hashed_password = generate_password_hash(password)
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
+            cursor.execute("""
+                INSERT INTO users (username, password_hash, email, funktion)
+                VALUES (%s, %s, %s, %s)
+            """, (username, hashed_password, email, funktion))
             conn.commit()
             cursor.close()
             conn.close()
-            return redirect(url_for('login'))
+            return redirect(url_for('admin_dashboard'))  # oder zurück zum Login
         except mysql.connector.IntegrityError:
             return "Benutzername existiert bereits!", 409
 
     return render_template('register.html')
+
 
 @app.route('/home')
 def home():
@@ -81,7 +95,7 @@ def admin_dashboard():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, username FROM users ORDER BY id ASC")
+    cursor.execute("SELECT id, username, email, funktion, last_login FROM users ORDER BY id ASC")
     users = cursor.fetchall()
     cursor.close()
     conn.close()
