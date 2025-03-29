@@ -2,6 +2,8 @@ from flask import render_template, request, redirect, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
+from datetime import datetime
+
 
 # MySQL-Verbindung (einfache Variante)
 def get_db_connection():
@@ -82,7 +84,17 @@ def register():
 @app.route('/home')
 def home():
     if 'user' in session:
-        return render_template('home.html', user=session['user'])
+        # 🕒 Aktuelle Stunde
+        stunde = datetime.now().hour
+        if stunde < 10:
+            begruessung = "Guten Morgen"
+        elif stunde < 14:
+            begruessung = "Guten Tag"
+        elif stunde < 17:
+            begruessung = "Guten Nachmittag"
+        else:
+            begruessung = "Guten Abend"
+        return render_template('home.html', begruessung=begruessung, user=session['user'], vorname=session['vorname'],nachname=session['nachname'])
     return redirect(url_for('login'))
 
 @app.route('/logout')
