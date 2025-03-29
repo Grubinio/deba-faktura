@@ -5,11 +5,15 @@
 <div class="container mt-5">
   <h2 class="mb-4">Willkommen, {{ user }} 👋</h2>
 
-  <!-- 📘 Anleitung -->
-  <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      📘 Anleitung zur Nutzung der Faktura-App
-    </div>
+<!-- 📘 Anleitung – ein- und ausklappbar -->
+<div class="card mb-4">
+  <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+    <span>📘 Anleitung zur Nutzung der Faktura-App</span>
+    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#anleitungText">
+      📖 Anzeigen / Verbergen
+    </button>
+  </div>
+  <div id="anleitungText" class="collapse show">
     <div class="card-body">
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam a sem eget nulla sodales facilisis.
@@ -17,6 +21,8 @@
       </p>
     </div>
   </div>
+</div>
+
 
   <!-- 📊 Aktuelle Aufträge -->
   <div class="card">
