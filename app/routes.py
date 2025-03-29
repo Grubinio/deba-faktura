@@ -143,3 +143,19 @@ def edit_user(user_id):
     conn.close()
 
     return render_template('edit_user.html', user=user)
+
+@app.route('/auftrag/<int:auftrag_id>')
+def auftrag_detail(auftrag_id):
+    return f"Details für Auftrag #{auftrag_id} (Platzhalter)"
+
+@app.route('/kunde/<int:kunde_id>')
+def kunde_detail(kunde_id):
+    return f"Details für Kunde #{kunde_id} (Platzhalter)"
+
+@app.route('/auftrag/neuer')
+def neuer_auftrag():
+    return "Neuen Auftrag anlegen (Platzhalter)"
+
+@app.route('/auftrag/filter')
+def filter_auftraege():
+    return "Aufträge filtern (Platzhalter)"
