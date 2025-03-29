@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container mt-5">
-  <h2 class="mb-4">Willkommen, {{ user }} 👋</h2>
+  <h2 class="mb-4">Hallo, {{ session['geschlecht'] }} {{ session['vorname'] }} {{ session['nachname'] }} 👋</h2>
 
 <!-- 📘 Anleitung – ein- und ausklappbar -->
 <div class="card mb-4">

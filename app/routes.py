@@ -33,6 +33,8 @@ def login():
 
         if user and check_password_hash(user['password_hash'], password):
             session['user'] = user['username']
+            session['vorname'] = user['vorname']
+            session['nachname'] = user['nachname']
             # ➕ Login-Zeit speichern
             conn = get_db_connection()
             cursor = conn.cursor()
