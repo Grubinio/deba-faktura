@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Benutzer bearbeiten{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h3>✏️ Benutzer bearbeiten</h3>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="username" class="form-label">Benutzername</label>
+      <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">E-Mail</label>
+      <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+    </div>
+    <div class="mb-3">
+      <label for="funktion" class="form-label">Funktion</label>
+      <select class="form-select" id="funktion" name="funktion" required>
+        <option value="Management" {% if user.funktion == 'Management' %}selected{% endif %}>Management</option>
+        <option value="Vertrieb" {% if user.funktion == 'Vertrieb' %}selected{% endif %}>Vertrieb</option>
+        <option value="Auftragsabwicklung" {% if user.funktion == 'Auftragsabwicklung' %}selected{% endif %}>Auftragsabwicklung</option>
+        <option value="Debitorenbuchhaltung" {% if user.funktion == 'Debitorenbuchhaltung' %}selected{% endif %}>Debitorenbuchhaltung</option>
+      </select>
+    </div>
+    <div class="d-flex justify-content-between">
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Änderungen speichern</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

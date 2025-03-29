@@ -31,6 +31,7 @@
                 <td>{{ user.last_login or '–' }}</td>
                 <td>
                   {% if user.username != 'admin' %}
+                    <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-outline-secondary">✏️</a>
                     <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display:inline;">
                       <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Wirklich löschen?');">🗑️</button>
                     </form>
@@ -65,11 +66,12 @@
               <label for="funktion" class="form-label">Funktion</label>
               <select class="form-select" id="funktion" name="funktion" required>
                 <option value="" disabled selected>Bitte wählen</option>
-                <option value="Management">Management</option>
                 <option value="Vertrieb">Vertrieb</option>
                 <option value="Auftragsabwicklung">Auftragsabwicklung</option>
                 <option value="Debitorenbuchhaltung">Debitorenbuchhaltung</option>
-              </select>            </div>
+                <option value="Management">Management</option>
+              </select>
+            </div>
           </div>
 
           <div class="row">

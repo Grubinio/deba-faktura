@@ -115,3 +115,31 @@ def delete_user(user_id):
     conn.close()
 
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/edit/<int:user_id>', methods=['GET', 'POST'])
+def edit_user(user_id):
+    if 'user' not in session or session['user'] != 'admin':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        funktion = request.form['funktion']
+
+        cursor.execute("""
+            UPDATE users SET username = %s, email = %s, funktion = %s WHERE id = %s
+        """, (username, email, funktion, user_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('admin_dashboard'))
+
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return render_template('edit_user.html', user=user)
