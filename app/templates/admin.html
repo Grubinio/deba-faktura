@@ -63,8 +63,13 @@
             </div>
             <div class="col-md-4 mb-3">
               <label for="funktion" class="form-label">Funktion</label>
-              <input type="text" class="form-control" id="funktion" name="funktion" placeholder="z. B. admin, user">
-            </div>
+              <select class="form-select" id="funktion" name="funktion" required>
+                <option value="" disabled selected>Bitte wählen</option>
+                <option value="Management">Management</option>
+                <option value="Vertrieb">Vertrieb</option>
+                <option value="Auftragsabwicklung">Auftragsabwicklung</option>
+                <option value="Debitorenbuchhaltung">Debitorenbuchhaltung</option>
+              </select>            </div>
           </div>
 
           <div class="row">
