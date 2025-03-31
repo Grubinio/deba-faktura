@@ -46,16 +46,19 @@
       <input name="voraussichtliche_rueckgabe" class="form-control date-de">
     </div>
 
-    <!-- Bürgschaftsart (Dropdown mit Bootstrap-Styling) -->
     <div class="mb-3">
-      <label class="form-label">Bürgschaftsart</label>
-      <select name="buergschaftsart" id="buergschaftsart" class="form-select" required>
-        <option value="">Bitte wählen</option>
-        <option value="Vorauszahlungsbürgschaft">Vorauszahlungsbürgschaft</option>
-        <option value="Vertragserfüllungsbürgschaft">Vertragserfüllungsbürgschaft</option>
-        <option value="Gewährleistungsbürgschaft">Gewährleistungsbürgschaft</option>
-      </select>
-    </div>
+        <label class="form-label d-block">Bürgschaftsart</label>
+        <div class="btn-group" role="group" aria-label="Bürgschaftsarten">
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art1" value="Vorauszahlungsbürgschaft" required>
+          <label class="btn btn-outline-primary" for="art1">Vorauszahlungsbürgschaft</label>
+      
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art2" value="Vertragserfüllungsbürgschaft">
+          <label class="btn btn-outline-primary" for="art2">Vertragserfüllungsbürgschaft</label>
+      
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art3" value="Gewährleistungsbürgschaft">
+          <label class="btn btn-outline-primary" for="art3">Gewährleistungsbürgschaft</label>
+        </div>
+      </div>
 
     <div class="mb-3">
       <label class="form-label">Bürgschaftssumme</label>
