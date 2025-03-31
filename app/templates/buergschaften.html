@@ -74,7 +74,11 @@
             <td>{{ b.buergschaftsart }}</td>
             <td>{{ b.buergschaftssumme }} €</td>
             <td>{{ b.buergschaftssumme_aktuell }} €</td>
-            <td>{{ b.erstelldatum.strftime('%d.%m.%Y') }}</td>
+            <td>
+                {% if b.erstelldatum %}
+                  {{ b.erstelldatum.strftime('%d.%m.%Y') }}
+                {% else %}-{% endif %}
+              </td>
             <td>
               {% if b.voraussichtliche_rueckgabe %}
                 {{ b.voraussichtliche_rueckgabe.strftime('%d.%m.%Y') }}

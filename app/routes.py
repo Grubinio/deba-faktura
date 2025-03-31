@@ -273,4 +273,39 @@ def buergschaften():
 
 @app.route('/buergschaften/<int:buergschaft_id>')
 def buergschaft_detail(buergschaft_id):
-    return f"Details für Bürgschaft {buergschaft_id} (Platzhalter)"
+    if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
+        return redirect(url_for('home'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Bürgschaft abrufen
+    cursor.execute("""
+        SELECT 
+            b.*, 
+            a.bezeichnung_kurz 
+        FROM buergschaften b
+        LEFT JOIN auftraege a ON b.auftragsnummer = a.auftragsnummer
+        WHERE b.id = %s
+    """, (buergschaft_id,))
+    buergschaft = cursor.fetchone()
+
+    if not buergschaft:
+        cursor.close()
+        conn.close()
+        return "Bürgschaft nicht gefunden", 404
+
+    # Ausbuchungen abrufen
+    cursor.execute("""
+        SELECT * FROM buergschaften_ausbuchungen
+        WHERE buergschaftsnummer = %s
+        ORDER BY ausbuchung DESC
+    """, (buergschaft['buergschaftsnummer'],))
+    ausbuchungen = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("buergschaft_detail.html",
+                           buergschaft=buergschaft,
+                           ausbuchungen=ausbuchungen)
