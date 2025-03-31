@@ -240,3 +240,7 @@ def buergschaften():
     conn.close()
 
     return render_template('buergschaften.html', buergschaften=buergschaften)
+
+@app.route('/buergschaften/<int:buergschaft_id>')
+def buergschaft_detail(buergschaft_id):
+    return f"Details für Bürgschaft {buergschaft_id} (Platzhalter)"
