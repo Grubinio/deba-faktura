@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Bürgschaften – DEBA Faktura{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">📄 Bürgschaften</h2>
+
+  <div class="card mb-3">
+    <div class="card-header bg-light">
+      🔍 Filter (Platzhalter)
+    </div>
+    <div class="card-body">
+      <!-- Filter-Formular folgt später -->
+      <p>Filter nach Auftragsnummer, Bürge, Bürgschaftsart (kommt später)</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-secondary text-white">
+      Übersicht
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Nummer</th>
+            <th>Auftrag</th>
+            <th>Kurzbezeichnung</th>
+            <th>Bürge</th>
+            <th>Art</th>
+            <th>Summe</th>
+            <th>Rest</th>
+            <th>Erstellt</th>
+            <th>Rückgabe</th>
+            <th>Status</th>
+            <th>🔍</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in buergschaften %}
+          <tr>
+            <td>{{ b.buergschaftsnummer }}</td>
+            <td>{{ b.auftragsnummer }}</td>
+            <td>{{ b.bezeichnung_kurz or "-" }}</td>
+            <td>{{ b.surety }}</td>
+            <td>{{ b.buergschaftsart }}</td>
+            <td>{{ b.buergschaftssumme }} €</td>
+            <td>{{ b.buergschaftssumme_aktuell }} €</td>
+            <td>{{ b.erstelldatum.strftime('%d.%m.%Y') }}</td>
+            <td>
+              {% if b.voraussichtliche_rueckgabe %}
+                {{ b.voraussichtliche_rueckgabe.strftime('%d.%m.%Y') }}
+              {% else %}-{% endif %}
+            </td>
+            <td>
+              {% if b.status == 'Aktiv' %}
+                <span class="badge bg-success">{{ b.status }}</span>
+              {% elif b.status == 'Teilweise ausgebucht' %}
+                <span class="badge bg-warning text-dark">{{ b.status }}</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ b.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('buergschaft_detail', buergschaft_id=b.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

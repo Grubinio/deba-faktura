@@ -206,7 +206,35 @@ def filter_auftraege():
 @app.route('/buergschaften')
 def buergschaften():
     if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
-        return redirect(url_for('home'))  # oder ein "403 Zugriff verweigert"-Template
+        return redirect(url_for('home'))
 
-    # Datenbankverbindung und Abruf (hier nur Dummy-Text)
-    return "📄 Bürgschaften-Übersicht (Platzhalter)"
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT 
+            b.id,
+            b.buergschaftsnummer,
+            b.auftragsnummer,
+            a.bezeichnung_kurz,
+            b.surety,
+            b.buergschaftsart,
+            b.buergschaftssumme,
+            b.buergschaftssumme_aktuell,
+            b.erstelldatum,
+            b.voraussichtliche_rueckgabe,
+            CASE 
+                WHEN b.buergschaftssumme_aktuell = 0 THEN 'Ausgebucht'
+                WHEN b.buergschaftssumme_aktuell < b.buergschaftssumme THEN 'Teilweise ausgebucht'
+                ELSE 'Aktiv'
+            END AS status
+        FROM buergschaften b
+        LEFT JOIN auftraege a ON b.auftragsnummer = a.auftragsnummer
+        ORDER BY b.erstelldatum DESC
+    """)
+    buergschaften = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('buergschaften.html', buergschaften=buergschaften)
+
