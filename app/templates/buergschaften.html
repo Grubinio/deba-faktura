@@ -72,8 +72,8 @@
             <td>{{ b.bezeichnung_kurz or "-" }}</td>
             <td>{{ b.surety }}</td>
             <td>{{ b.buergschaftsart }}</td>
-            <td>{{ b.buergschaftssumme }} €</td>
-            <td>{{ b.buergschaftssumme_aktuell }} €</td>
+            <td>{{ b.buergschaftssumme | currency }} €</td>
+            <td>{{ b.buergschaftssumme_aktuell | currency }} €</td>
             <td>
                 {% if b.erstelldatum %}
                   {{ b.erstelldatum.strftime('%d.%m.%Y') }}

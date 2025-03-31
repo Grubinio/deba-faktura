@@ -9,3 +9,6 @@ app.secret_key = 'dein_sicherer_key'
 from app import routes
 
 app.debug = True
+
+from .filters import format_currency
+app.jinja_env.filters['currency'] = format_currency

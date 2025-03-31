@@ -20,8 +20,8 @@
         <div class="col-md-6">
           <p><strong>Erstellt am:</strong> {{ buergschaft.erstelldatum.strftime('%d.%m.%Y') }}</p>
           <p><strong>Rückgabe geplant:</strong> {{ buergschaft.voraussichtliche_rueckgabe.strftime('%d.%m.%Y') if buergschaft.voraussichtliche_rueckgabe else "-" }}</p>
-          <p><strong>Summe:</strong> {{ buergschaft.buergschaftssumme }} €</p>
-          <p><strong>Restbetrag:</strong> {{ buergschaft.buergschaftssumme_aktuell }} €</p>
+          <p><strong>Summe:</strong> {{ buergschaft.buergschaftssumme | currency }} €</p>
+          <p><strong>Restbetrag:</strong> {{ buergschaft.buergschaftssumme_aktuell | currency }} €</p>
         </div>
       </div>
       <p><strong>Bemerkung:</strong> {{ buergschaft.bemerkung or "-" }}</p>
