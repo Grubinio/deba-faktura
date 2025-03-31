@@ -309,3 +309,56 @@ def buergschaft_detail(buergschaft_id):
     return render_template("buergschaft_detail.html",
                            buergschaft=buergschaft,
                            ausbuchungen=ausbuchungen)
+
+@app.route('/buergschaften/<int:buergschaft_id>/ausbuchung', methods=['GET', 'POST'])
+def buergschaft_ausbuchung(buergschaft_id):
+    if not user_has_role('Fakturierung'):
+        return redirect(url_for('home'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Bürgschaft holen
+    cursor.execute("SELECT * FROM buergschaften WHERE id = %s", (buergschaft_id,))
+    buergschaft = cursor.fetchone()
+
+    if not buergschaft:
+        cursor.close()
+        conn.close()
+        return "Bürgschaft nicht gefunden", 404
+
+    if request.method == 'POST':
+        summe = request.form.get('ausbuchungssumme')
+        datum = request.form.get('ausbuchung')
+        bemerkung = request.form.get('bemerkung', '')
+
+        try:
+            summe_float = float(summe.replace(',', '.'))
+
+            if summe_float <= 0:
+                raise ValueError("Summe muss positiv sein.")
+            if buergschaft['buergschaftssumme_aktuell'] is not None and summe_float > buergschaft['buergschaftssumme_aktuell']:
+                raise ValueError("Die Ausbuchung übersteigt den Restbetrag.")
+
+            # Einfügen
+            cursor.execute("""
+                INSERT INTO buergschaften_ausbuchungen (buergschaftsnummer, ausbuchungssumme, ausbuchung, bemerkung)
+                VALUES (%s, %s, %s, %s)
+            """, (buergschaft['buergschaftsnummer'], summe_float, datum, bemerkung))
+
+            # Restbetrag aktualisieren
+            new_rest = buergschaft['buergschaftssumme_aktuell'] - summe_float
+            cursor.execute("""
+                UPDATE buergschaften SET buergschaftssumme_aktuell = %s WHERE id = %s
+            """, (new_rest, buergschaft_id))
+
+            conn.commit()
+            flash("Ausbuchung erfolgreich hinzugefügt!", "info")
+            return redirect(url_for('buergschaft_detail', buergschaft_id=buergschaft_id))
+
+        except ValueError as e:
+            flash(str(e), "danger")
+
+    cursor.close()
+    conn.close()
+    return render_template("buergschaft_ausbuchung.html", buergschaft=buergschaft)
