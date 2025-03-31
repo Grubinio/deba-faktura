@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, session, url_for, jsonify,
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
+from decimal import Decimal
 from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -328,41 +329,46 @@ def buergschaft_ausbuchung(buergschaft_id):
         return "Bürgschaft nicht gefunden", 404
 
     if request.method == 'POST':
-        summe = request.form.get('ausbuchungssumme')
-        datum_str = request.form.get('ausbuchung')
-        datum = datetime.strptime(datum_str, "%d.%m.%Y").date()
-        bemerkung = request.form.get('bemerkung', '')
-
         try:
-            summe_float = float(summe.replace(',', '.'))
+            summe = request.form.get('ausbuchungssumme')
+            datum_str = request.form.get('ausbuchung')
+            datum = datetime.strptime(datum_str, "%d.%m.%Y").date()
+            bemerkung = request.form.get('bemerkung', '')
 
-            if summe_float <= 0:
+            # Betrag als Decimal einlesen
+            summe_decimal = Decimal(summe.replace('.', '').replace(',', '.'))
+
+            # Validierung
+            if summe_decimal <= 0:
                 raise ValueError("Summe muss positiv sein.")
-            if buergschaft['buergschaftssumme_aktuell'] is not None and summe_float > buergschaft['buergschaftssumme_aktuell']:
-                flash("Die Ausbuchung darf den Restbetrag nicht überschreiten!", "danger")
+            if buergschaft['buergschaftssumme_aktuell'] is not None and summe_decimal > buergschaft['buergschaftssumme_aktuell']:
+                flash("❌ Die Ausbuchung darf den Restbetrag nicht überschreiten!", "danger")
                 raise ValueError("Die Ausbuchung übersteigt den Restbetrag.")
-            # Einfügen
+
+            # Ausbuchung einfügen
             cursor.execute("""
                 INSERT INTO buergschaften_ausbuchungen (buergschaftsnummer, ausbuchungssumme, ausbuchung, bemerkung)
                 VALUES (%s, %s, %s, %s)
-            """, (buergschaft['buergschaftsnummer'], summe_float, datum, bemerkung))
+            """, (buergschaft['buergschaftsnummer'], summe_decimal, datum, bemerkung))
 
             # Restbetrag aktualisieren
-            new_rest = buergschaft['buergschaftssumme_aktuell'] - summe_float
+            new_rest = Decimal(buergschaft['buergschaftssumme_aktuell']) - summe_decimal
             cursor.execute("""
                 UPDATE buergschaften SET buergschaftssumme_aktuell = %s WHERE id = %s
             """, (new_rest, buergschaft_id))
 
             conn.commit()
-            flash("Ausbuchung erfolgreich hinzugefügt!", "info")
+            flash("✅ Ausbuchung erfolgreich hinzugefügt!", "success")
             return redirect(url_for('buergschaft_detail', buergschaft_id=buergschaft_id))
 
-        except ValueError as e:
-            flash(str(e), "danger")
+        except Exception as e:
+            conn.rollback()
+            flash(f"❗ Fehler: {str(e)}", "danger")
 
     cursor.close()
     conn.close()
     return render_template("buergschaft_ausbuchung.html", buergschaft=buergschaft)
+
 
 @app.route('/buergschaften/add', methods=['GET', 'POST'])
 def buergschaft_add():
