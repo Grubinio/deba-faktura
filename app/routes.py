@@ -208,6 +208,8 @@ def buergschaften():
     if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
         return redirect(url_for('home'))
 
+    # HIER kommt jetzt die SQL-Abfrage hin:
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -232,9 +234,9 @@ def buergschaften():
         LEFT JOIN auftraege a ON b.auftragsnummer = a.auftragsnummer
         ORDER BY b.erstelldatum DESC
     """)
+
     buergschaften = cursor.fetchall()
     cursor.close()
     conn.close()
 
     return render_template('buergschaften.html', buergschaften=buergschaften)
-
