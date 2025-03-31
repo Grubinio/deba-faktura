@@ -6,6 +6,8 @@ from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+app.config['DEBUG'] = True
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # MySQL-Verbindung (einfache Variante)
 def get_db_connection():

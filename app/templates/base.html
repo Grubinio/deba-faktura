@@ -26,22 +26,23 @@
       <!-- Navbar-Inhalt -->
       <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
         <ul class="navbar-nav">
-            {% if session.get('user') and (user_has_role('Fakturierung') or user_has_role('Management') or user_has_role('Superuser')) %}
+          {% if session.get('user') %}
+          {% if session.get('user_id') and (user_has_role('Fakturierung') or user_has_role('Management') or user_has_role('Superuser')) %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('buergschaften') }}">Bürgschaften</a>
             </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white">👤 {{ session['user'] }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">🔓 Logout</a>
-            </li>
-          {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-            </li>
           {% endif %}
+          <li class="nav-item">
+            <span class="nav-link text-white">👤 {{ session.get('user') }}</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">🔓 Logout</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+        {% endif %}
         </ul>
       </div>
     </div>
