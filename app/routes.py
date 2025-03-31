@@ -35,6 +35,9 @@ def user_has_role(role_name):
 
     return result is not None
 
+@app.context_processor
+def inject_user_role_check():
+    return dict(user_has_role=user_has_role)
 
 @app.route('/')
 def index():
