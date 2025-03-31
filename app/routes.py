@@ -3,6 +3,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
 from datetime import datetime
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 # MySQL-Verbindung (einfache Variante)
