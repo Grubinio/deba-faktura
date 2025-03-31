@@ -6,13 +6,41 @@
   <h2 class="mb-4">📄 Bürgschaften</h2>
 
   <div class="card mb-3">
-    <div class="card-header bg-light">
-      🔍 Filter (Platzhalter)
-    </div>
-    <div class="card-body">
-      <!-- Filter-Formular folgt später -->
-      <p>Filter nach Auftragsnummer, Bürge, Bürgschaftsart (kommt später)</p>
-    </div>
+    <form method="get" action="{{ url_for('buergschaften') }}">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label for="auftragsnummer" class="form-label">Auftragsnummer</label>
+            <input type="text" name="auftragsnummer" id="auftragsnummer" class="form-control"
+                   value="{{ filter_auftragsnummer }}">
+          </div>
+      
+          <div class="col-md-4">
+            <label for="buerge" class="form-label">Bürge</label>
+            <select name="buerge" id="buerge" class="form-select">
+              <option value="">Alle</option>
+              {% for name in buergen_liste %}
+              <option value="{{ name }}" {% if name == filter_buerge %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+      
+          <div class="col-md-4">
+            <label for="art" class="form-label">Bürgschaftsart</label>
+            <select name="art" id="art" class="form-select">
+              <option value="">Alle</option>
+              <option value="Vorauszahlungsbürgschaft" {% if filter_art == 'Vorauszahlungsbürgschaft' %}selected{% endif %}>Vorauszahlungsbürgschaft</option>
+              <option value="Vertragserfüllungsbürgschaft" {% if filter_art == 'Vertragserfüllungsbürgschaft' %}selected{% endif %}>Vertragserfüllungsbürgschaft</option>
+              <option value="Gewährleistungsbürgschaft" {% if filter_art == 'Gewährleistungsbürgschaft' %}selected{% endif %}>Gewährleistungsbürgschaft</option>
+            </select>
+          </div>
+      
+          <div class="col-md-12 text-end mt-3">
+            <button type="submit" class="btn btn-primary">🔍 Filtern</button>
+            <a href="{{ url_for('buergschaften') }}" class="btn btn-outline-secondary">🔁 Zurücksetzen</a>
+          </div>
+        </div>
+      </form>
+      
   </div>
 
   <div class="card">

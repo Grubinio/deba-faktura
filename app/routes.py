@@ -208,12 +208,15 @@ def buergschaften():
     if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
         return redirect(url_for('home'))
 
-    # HIER kommt jetzt die SQL-Abfrage hin:
+    auftragsnummer = request.args.get('auftragsnummer', '').strip()
+    buerge = request.args.get('buerge', '')
+    art = request.args.get('art', '')
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("""
+    # Filter aufbauen
+    sql = """
         SELECT 
             b.id,
             b.buergschaftsnummer,
@@ -232,14 +235,41 @@ def buergschaften():
             END AS status
         FROM buergschaften b
         LEFT JOIN auftraege a ON b.auftragsnummer = a.auftragsnummer
-        ORDER BY b.erstelldatum DESC
-    """)
+        WHERE 1=1
+    """
 
+    params = []
+
+    if auftragsnummer:
+        sql += " AND b.auftragsnummer LIKE %s"
+        params.append(f"%{auftragsnummer}%")
+    
+    if buerge:
+        sql += " AND b.surety = %s"
+        params.append(buerge)
+    
+    if art:
+        sql += " AND b.buergschaftsart = %s"
+        params.append(art)
+
+    sql += " ORDER BY b.erstelldatum DESC"
+
+    cursor.execute(sql, params)
     buergschaften = cursor.fetchall()
+
+    # Alle Bürgen für Dropdown
+    cursor.execute("SELECT DISTINCT buergenname FROM sureties ORDER BY buergenname")
+    buergen_liste = [row['buergenname'] for row in cursor.fetchall()]
+
     cursor.close()
     conn.close()
 
-    return render_template('buergschaften.html', buergschaften=buergschaften)
+    return render_template('buergschaften.html', buergschaften=buergschaften,
+                           filter_auftragsnummer=auftragsnummer,
+                           filter_buerge=buerge,
+                           filter_art=art,
+                           buergen_liste=buergen_liste)
+
 
 @app.route('/buergschaften/<int:buergschaft_id>')
 def buergschaft_detail(buergschaft_id):
