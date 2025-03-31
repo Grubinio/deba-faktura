@@ -6,9 +6,18 @@
 
   <form method="post">
     <div class="mb-3">
-      <label class="form-label">Bürgschaftsnummer</label>
-      <input name="buergschaftsnummer" class="form-control" required>
-    </div>
+        <label class="form-label d-block">Bürgschaftsart</label>
+        <div class="btn-group" role="group" aria-label="Bürgschaftsarten">
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art1" value="Vorauszahlungsbürgschaft" required>
+          <label class="btn btn-outline-primary" for="art1">Vorauszahlungsbürgschaft</label>
+      
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art2" value="Vertragserfüllungsbürgschaft">
+          <label class="btn btn-outline-primary" for="art2">Vertragserfüllungsbürgschaft</label>
+      
+          <input type="radio" class="btn-check" name="buergschaftsart" id="art3" value="Gewährleistungsbürgschaft">
+          <label class="btn btn-outline-primary" for="art3">Gewährleistungsbürgschaft</label>
+        </div>
+      </div>
 
     <div class="mb-3">
       <label class="form-label">Auftragsnummer</label>
@@ -37,6 +46,11 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Bürgschaftsnummer</label>
+        <input name="buergschaftsnummer" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
       <label class="form-label">Erstelldatum</label>
       <input name="erstelldatum" class="form-control date-de" value="{{ now | default('', true) }}" required>
     </div>
@@ -45,20 +59,6 @@
       <label class="form-label">Voraussichtliche Rückgabe</label>
       <input name="voraussichtliche_rueckgabe" class="form-control date-de">
     </div>
-
-    <div class="mb-3">
-        <label class="form-label d-block">Bürgschaftsart</label>
-        <div class="btn-group" role="group" aria-label="Bürgschaftsarten">
-          <input type="radio" class="btn-check" name="buergschaftsart" id="art1" value="Vorauszahlungsbürgschaft" required>
-          <label class="btn btn-outline-primary" for="art1">Vorauszahlungsbürgschaft</label>
-      
-          <input type="radio" class="btn-check" name="buergschaftsart" id="art2" value="Vertragserfüllungsbürgschaft">
-          <label class="btn btn-outline-primary" for="art2">Vertragserfüllungsbürgschaft</label>
-      
-          <input type="radio" class="btn-check" name="buergschaftsart" id="art3" value="Gewährleistungsbürgschaft">
-          <label class="btn btn-outline-primary" for="art3">Gewährleistungsbürgschaft</label>
-        </div>
-      </div>
 
     <div class="mb-3">
       <label class="form-label">Bürgschaftssumme</label>
