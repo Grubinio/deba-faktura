@@ -371,12 +371,17 @@ def buergschaft_add():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Aufträge für Dropdown
-    cursor.execute("SELECT auftragsnummer, bezeichnung_kurz FROM auftraege ORDER BY auftragsnummer DESC")
+    # Nur Aufträge ohne 'Schlussrechnung'
+    cursor.execute("""
+        SELECT auftragsnummer, bezeichnung_kurz
+        FROM auftraege
+        WHERE status != 'Schlussrechnung'
+        ORDER BY auftragsnummer DESC
+    """)
     auftraege = cursor.fetchall()
 
-    # Sureties für Dropdown
-    cursor.execute("SELECT buergenname FROM sureties ORDER BY buergenname")
+    # Sureties für Combobox
+    cursor.execute("SELECT DISTINCT buergenname FROM sureties ORDER BY buergenname")
     buergen = [row['buergenname'] for row in cursor.fetchall()]
 
     if request.method == 'POST':
@@ -415,7 +420,13 @@ def buergschaft_add():
 
     cursor.close()
     conn.close()
-    return render_template('buergschaft_add.html', auftraege=auftraege, buergen=buergen, now=datetime.today().strftime("%d.%m.%Y"))
+    return render_template(
+        'buergschaft_add.html',
+        auftraege=auftraege,
+        buergen=buergen,
+        now=datetime.today().strftime("%d.%m.%Y")
+    )
+
 
 @app.route('/api/beguenstigter/<auftragsnummer>')
 def api_beguenstigter(auftragsnummer):

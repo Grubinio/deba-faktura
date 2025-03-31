@@ -25,13 +25,15 @@
       <input name="beguenstigter" class="form-control" id="beguenstigterField" readonly required>
     </div>
 
+    <!-- Bürge (als Combobox) -->
     <div class="mb-3">
-      <label class="form-label">Bürge</label>
-      <select name="surety" class="form-select" required>
-        {% for s in buergen %}
-          <option value="{{ s }}">{{ s }}</option>
+        <label for="surety" class="form-label">Bürge</label>
+        <input list="buergenListe" name="surety" id="surety" class="form-control">
+        <datalist id="buergenListe">
+        {% for buerge in buergen_liste %}
+            <option value="{{ buerge }}">
         {% endfor %}
-      </select>
+        </datalist>
     </div>
 
     <div class="mb-3">
@@ -44,13 +46,15 @@
       <input name="voraussichtliche_rueckgabe" class="form-control date-de">
     </div>
 
+    <!-- Bürgschaftsart (als Combobox) -->
     <div class="mb-3">
-      <label class="form-label">Bürgschaftsart</label>
-      <select name="buergschaftsart" class="form-select" required>
-        <option value="Vorauszahlungsbürgschaft">Vorauszahlungsbürgschaft</option>
-        <option value="Vertragserfüllungsbürgschaft">Vertragserfüllungsbürgschaft</option>
-        <option value="Gewährleistungsbürgschaft">Gewährleistungsbürgschaft</option>
-      </select>
+    <label for="buergschaftsart" class="form-label">Bürgschaftsart</label>
+    <input list="artListe" name="buergschaftsart" id="buergschaftsart" class="form-control">
+    <datalist id="artListe">
+      <option value="Vorauszahlungsbürgschaft">
+      <option value="Vertragserfüllungsbürgschaft">
+      <option value="Gewährleistungsbürgschaft">
+    </datalist>
     </div>
 
     <div class="mb-3">
