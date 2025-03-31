@@ -14,6 +14,26 @@ def get_db_connection():
         database="faktura_app"
     )
 
+def user_has_role(role_name):
+    if 'user_id' not in session:
+        return False
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+        SELECT 1 FROM user_roles ur
+        JOIN rollen r ON ur.rollen_id = r.id
+        WHERE ur.user_id = %s AND r.bezeichnung = %s
+        LIMIT 1
+    """
+    cursor.execute(query, (session['user_id'], role_name))
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return result is not None
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -35,6 +55,7 @@ def login():
 
         if user and check_password_hash(user['password_hash'], password):
             session['user'] = user['username']
+            session['user_id'] = user['id']
             session['vorname'] = user['vorname']
             session['nachname'] = user['nachname']
             # ➕ Login-Zeit speichern
@@ -86,7 +107,9 @@ def home():
     if 'user' in session:
         # 🕒 Aktuelle Stunde
         stunde = datetime.now().hour
-        if stunde < 10:
+        if stunde < 7:
+            begruessung ="Guten Morgen Frühaufsteher"
+        elif stunde < 10:
             begruessung = "Guten Morgen"
         elif stunde < 14:
             begruessung = "Guten Tag"
@@ -104,9 +127,8 @@ def logout():
 
 @app.route('/admin')
 def admin_dashboard():
-    if 'user' not in session or session['user'] != 'admin':
+    if not user_has_role('Admin'):
         return redirect(url_for('login'))
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id, username, email, funktion, last_login FROM users ORDER BY id ASC")
@@ -118,7 +140,7 @@ def admin_dashboard():
 
 @app.route('/admin/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
-    if 'user' not in session or session['user'] != 'admin':
+    if not user_has_role('Admin'):
         return redirect(url_for('login'))
 
     conn = get_db_connection()
@@ -132,7 +154,7 @@ def delete_user(user_id):
 
 @app.route('/admin/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit_user(user_id):
-    if 'user' not in session or session['user'] != 'admin':
+    if not user_has_role('Admin'):
         return redirect(url_for('login'))
 
     conn = get_db_connection()
@@ -173,3 +195,11 @@ def neuer_auftrag():
 @app.route('/auftrag/filter')
 def filter_auftraege():
     return "Aufträge filtern (Platzhalter)"
+
+@app.route('/buergschaften')
+def buergschaften():
+    if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
+        return redirect(url_for('home'))  # oder ein "403 Zugriff verweigert"-Template
+
+    # Datenbankverbindung und Abruf (hier nur Dummy-Text)
+    return "📄 Bürgschaften-Übersicht (Platzhalter)"
