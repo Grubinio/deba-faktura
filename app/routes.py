@@ -329,7 +329,8 @@ def buergschaft_ausbuchung(buergschaft_id):
 
     if request.method == 'POST':
         summe = request.form.get('ausbuchungssumme')
-        datum = request.form.get('ausbuchung')
+        datum_str = request.form.get('ausbuchung')
+        datum = datetime.strptime(datum_str, "%d.%m.%Y").date()
         bemerkung = request.form.get('bemerkung', '')
 
         try:
