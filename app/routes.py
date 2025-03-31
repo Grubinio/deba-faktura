@@ -338,8 +338,8 @@ def buergschaft_ausbuchung(buergschaft_id):
             if summe_float <= 0:
                 raise ValueError("Summe muss positiv sein.")
             if buergschaft['buergschaftssumme_aktuell'] is not None and summe_float > buergschaft['buergschaftssumme_aktuell']:
+                flash("Die Ausbuchung darf den Restbetrag nicht überschreiten!", "danger")
                 raise ValueError("Die Ausbuchung übersteigt den Restbetrag.")
-
             # Einfügen
             cursor.execute("""
                 INSERT INTO buergschaften_ausbuchungen (buergschaftsnummer, ausbuchungssumme, ausbuchung, bemerkung)
