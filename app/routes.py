@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, jsonify, Response
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
@@ -421,12 +421,19 @@ def buergschaft_add():
 def api_beguenstigter(auftragsnummer):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
-        SELECT k.name FROM auftraege a
+        SELECT k.firmenname
+        FROM auftraege a
         JOIN kunden k ON a.kundennummer = k.kundennummer
         WHERE a.auftragsnummer = %s
     """, (auftragsnummer,))
+
     result = cursor.fetchone()
     cursor.close()
     conn.close()
-    return result['name'] if result else ''
+
+    if result and result['firmenname']:
+        return Response(result['firmenname'], mimetype="text/plain")
+    else:
+        return Response("Nicht gefunden", status=404, mimetype="text/plain")
