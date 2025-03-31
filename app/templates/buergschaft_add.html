@@ -25,15 +25,15 @@
       <input name="beguenstigter" class="form-control" id="beguenstigterField" readonly required>
     </div>
 
-    <!-- Bürge (als Combobox) -->
+    <!-- Bürge (neue Darstellung als Select mit Bootstrap-Styling) -->
     <div class="mb-3">
-        <label for="surety" class="form-label">Bürge</label>
-        <input list="buergenListe" name="surety" id="surety" class="form-control">
-        <datalist id="buergenListe">
-        {% for buerge in buergen_liste %}
-            <option value="{{ buerge }}">
+      <label class="form-label">Bürge</label>
+      <select name="surety" id="surety" class="form-select" required>
+        <option value="">Bitte wählen</option>
+        {% for buerge in buergen %}
+          <option value="{{ buerge }}">{{ buerge }}</option>
         {% endfor %}
-        </datalist>
+      </select>
     </div>
 
     <div class="mb-3">
@@ -46,15 +46,15 @@
       <input name="voraussichtliche_rueckgabe" class="form-control date-de">
     </div>
 
-    <!-- Bürgschaftsart (als Combobox) -->
+    <!-- Bürgschaftsart (Dropdown mit Bootstrap-Styling) -->
     <div class="mb-3">
-    <label for="buergschaftsart" class="form-label">Bürgschaftsart</label>
-    <input list="artListe" name="buergschaftsart" id="buergschaftsart" class="form-control">
-    <datalist id="artListe">
-      <option value="Vorauszahlungsbürgschaft">
-      <option value="Vertragserfüllungsbürgschaft">
-      <option value="Gewährleistungsbürgschaft">
-    </datalist>
+      <label class="form-label">Bürgschaftsart</label>
+      <select name="buergschaftsart" id="buergschaftsart" class="form-select" required>
+        <option value="">Bitte wählen</option>
+        <option value="Vorauszahlungsbürgschaft">Vorauszahlungsbürgschaft</option>
+        <option value="Vertragserfüllungsbürgschaft">Vertragserfüllungsbürgschaft</option>
+        <option value="Gewährleistungsbürgschaft">Gewährleistungsbürgschaft</option>
+      </select>
     </div>
 
     <div class="mb-3">
@@ -84,7 +84,7 @@
 </div>
 
 <script>
-  document.getElementById('auftragSelect').addEventListener('change', function() {
+  document.getElementById('auftragSelect').addEventListener('change', function () {
     const nr = this.value;
     if (!nr) return;
     fetch(`/api/beguenstigter/${nr}`)
