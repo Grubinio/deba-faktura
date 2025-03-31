@@ -362,3 +362,71 @@ def buergschaft_ausbuchung(buergschaft_id):
     cursor.close()
     conn.close()
     return render_template("buergschaft_ausbuchung.html", buergschaft=buergschaft)
+
+@app.route('/buergschaften/add', methods=['GET', 'POST'])
+def buergschaft_add():
+    if not any(user_has_role(r) for r in ['Fakturierung', 'Superuser']):
+        return redirect(url_for('home'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Aufträge für Dropdown
+    cursor.execute("SELECT auftragsnummer, bezeichnung_kurz FROM auftraege ORDER BY auftragsnummer DESC")
+    auftraege = cursor.fetchall()
+
+    # Sureties für Dropdown
+    cursor.execute("SELECT buergenname FROM sureties ORDER BY buergenname")
+    buergen = [row['buergenname'] for row in cursor.fetchall()]
+
+    if request.method == 'POST':
+        try:
+            data = request.form
+            bnr = data['buergschaftsnummer'].strip()
+            anr = data['auftragsnummer']
+            beguenstigter = data['beguenstigter'].strip()
+            surety = data['surety']
+            erstelldatum = datetime.strptime(data['erstelldatum'], "%d.%m.%Y").date()
+            rueckgabe = data['voraussichtliche_rueckgabe']
+            rueckgabe = datetime.strptime(rueckgabe, "%d.%m.%Y").date() if rueckgabe else None
+            art = data['buergschaftsart']
+            summe = float(data['buergschaftssumme'].replace('.', '').replace(',', '.'))
+            waehrung = data['waehrung']
+            bemerkung = data['bemerkung'].strip() or None
+
+            cursor.execute("""
+                INSERT INTO buergschaften (
+                    buergschaftsnummer, auftragsnummer, beguenstigter, surety,
+                    erstelldatum, voraussichtliche_rueckgabe,
+                    buergschaftsart, buergschaftssumme, buergschaftssumme_aktuell,
+                    waehrung, bemerkung
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                bnr, anr, beguenstigter, surety, erstelldatum, rueckgabe,
+                art, summe, summe, waehrung, bemerkung
+            ))
+
+            conn.commit()
+            flash("✅ Bürgschaft erfolgreich gespeichert.", "success")
+            return redirect(url_for('buergschaften'))
+        except Exception as e:
+            conn.rollback()
+            flash(f"Fehler: {str(e)}", "danger")
+
+    cursor.close()
+    conn.close()
+    return render_template('buergschaft_add.html', auftraege=auftraege, buergen=buergen, now=datetime.today().strftime("%d.%m.%Y"))
+
+@app.route('/api/beguenstigter/<auftragsnummer>')
+def api_beguenstigter(auftragsnummer):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT k.name FROM auftraege a
+        JOIN kunden k ON a.kundennummer = k.kundennummer
+        WHERE a.auftragsnummer = %s
+    """, (auftragsnummer,))
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return result['name'] if result else ''

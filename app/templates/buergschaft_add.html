@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}➕ Neue Bürgschaft – DEBA Faktura{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">➕ Neue Bürgschaft erfassen</h2>
+
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Bürgschaftsnummer</label>
+      <input name="buergschaftsnummer" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Auftragsnummer</label>
+      <select name="auftragsnummer" class="form-select" required id="auftragSelect">
+        <option value="">Bitte wählen</option>
+        {% for a in auftraege %}
+          <option value="{{ a.auftragsnummer }}">{{ a.auftragsnummer }} – {{ a.bezeichnung_kurz }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Begünstigter</label>
+      <input name="beguenstigter" class="form-control" id="beguenstigterField" readonly required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Bürge</label>
+      <select name="surety" class="form-select" required>
+        {% for s in buergen %}
+          <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Erstelldatum</label>
+      <input name="erstelldatum" class="form-control date-de" value="{{ now | default('', true) }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Voraussichtliche Rückgabe</label>
+      <input name="voraussichtliche_rueckgabe" class="form-control date-de">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Bürgschaftsart</label>
+      <select name="buergschaftsart" class="form-select" required>
+        <option value="Vorauszahlungsbürgschaft">Vorauszahlungsbürgschaft</option>
+        <option value="Vertragserfüllungsbürgschaft">Vertragserfüllungsbürgschaft</option>
+        <option value="Gewährleistungsbürgschaft">Gewährleistungsbürgschaft</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Bürgschaftssumme</label>
+      <input name="buergschaftssumme" class="form-control" required placeholder="z. B. 12.500,00">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Währung</label>
+      <select name="waehrung" class="form-select">
+        <option value="EUR" selected>EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="SAR">SAR</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Bemerkung</label>
+      <input name="bemerkung" class="form-control" maxlength="250">
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <a href="{{ url_for('buergschaften') }}" class="btn btn-secondary">⬅ Abbrechen</a>
+      <button type="submit" class="btn btn-success">💾 Speichern</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('auftragSelect').addEventListener('change', function() {
+    const nr = this.value;
+    if (!nr) return;
+    fetch(`/api/beguenstigter/${nr}`)
+      .then(r => r.text())
+      .then(name => document.getElementById('beguenstigterField').value = name);
+  });
+</script>
+{% endblock %}
