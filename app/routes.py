@@ -227,6 +227,7 @@ def neuer_auftrag():
 @app.route('/auftrag/filter')
 def filter_auftraege():
     return "Aufträge filtern (Platzhalter)"
+
 @app.route('/buergschaften')
 def buergschaften():
     if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
@@ -267,7 +268,7 @@ def buergschaften():
 
     # Standard-Filter: Nur Bürgschaften mit Rest > 0
     if not zeige_alle:
-        sql += " AND b.buergschaftssumme_aktuell > 0"
+        sql += " AND (b.buergschaftssumme_aktuell IS NULL OR b.buergschaftssumme_aktuell > 0)"
 
     if auftragsnummer:
         sql += " AND b.auftragsnummer LIKE %s"
@@ -285,6 +286,9 @@ def buergschaften():
 
     cursor.execute(sql, params)
     buergschaften = cursor.fetchall()
+    for b in buergschaften:
+        print("🧾 Bürgschaft:", b['buergschaftsnummer'], "Summe:", b['buergschaftssumme'], "Aktuell:", b['buergschaftssumme_aktuell'], "→ Status:", b['status'])
+
 
     # Alle Bürgen für Dropdown
     cursor.execute("SELECT DISTINCT buergenname FROM sureties ORDER BY buergenname")
