@@ -7,7 +7,7 @@ from datetime import datetime
 from mysql.connector.pooling import MySQLConnectionPool
 import logging
 logging.basicConfig(
-    filename='error.log',
+    filename='/var/www/faktura/error.log',
     level=logging.DEBUG,  # oder ERROR, wenn du nur Fehler willst
     format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 )
