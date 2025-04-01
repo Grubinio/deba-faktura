@@ -8,8 +8,9 @@ class Config:
     PROPAGATE_EXCEPTIONS = True
 
     # Beispiel für DB-Zugriff (wenn du willst)
+    DB_HOST = os.getenv('DB_HOST', 'localhost')     
     DB_USER = os.getenv('DB_USER', 'faktura_user')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'meinpasswort')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', 'meinpasswort')  
     DB_NAME = os.getenv('DB_NAME', 'faktura_app')
     #neu
     DB_POOL_NAME = os.getenv("DB_POOL_NAME", "mypool")
