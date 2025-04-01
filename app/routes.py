@@ -227,7 +227,6 @@ def neuer_auftrag():
 @app.route('/auftrag/filter')
 def filter_auftraege():
     return "Aufträge filtern (Platzhalter)"
-
 @app.route('/buergschaften')
 def buergschaften():
     if not any(user_has_role(r) for r in ['Fakturierung', 'Management', 'Superuser']):
@@ -236,11 +235,12 @@ def buergschaften():
     auftragsnummer = request.args.get('auftragsnummer', '').strip()
     buerge = request.args.get('buerge', '')
     art = request.args.get('art', '')
+    zeige_alle = request.args.get('zeige_alle', '') == '1'  # ← Flag für Ausgeblendetes
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Filter aufbauen
+    # SQL-Grundgerüst
     sql = """
         SELECT 
             b.id,
@@ -255,7 +255,7 @@ def buergschaften():
             b.voraussichtliche_rueckgabe,
             CASE 
                 WHEN b.buergschaftssumme_aktuell = 0 THEN 'Ausgebucht'
-                WHEN b.buergschaftssumme_aktuell < b.buergschaftssumme THEN 'Teilweise ausgebucht'
+                WHEN b.buergschaftssumme_aktuell < b.buergschaftsnummer THEN 'Teilweise ausgebucht'
                 ELSE 'Aktiv'
             END AS status
         FROM buergschaften b
@@ -264,6 +264,10 @@ def buergschaften():
     """
 
     params = []
+
+    # Standard-Filter: Nur Bürgschaften mit Rest > 0
+    if not zeige_alle:
+        sql += " AND b.buergschaftssumme_aktuell > 0"
 
     if auftragsnummer:
         sql += " AND b.auftragsnummer LIKE %s"
@@ -289,11 +293,13 @@ def buergschaften():
     cursor.close()
     conn.close()
 
-    return render_template('buergschaften.html', buergschaften=buergschaften,
+    return render_template('buergschaften.html',
+                           buergschaften=buergschaften,
                            filter_auftragsnummer=auftragsnummer,
                            filter_buerge=buerge,
                            filter_art=art,
-                           buergen_liste=buergen_liste)
+                           buergen_liste=buergen_liste,
+                           zeige_alle=zeige_alle)  # ← Wird im Template verfügbar
 
 
 @app.route('/buergschaften/<int:buergschaft_id>')

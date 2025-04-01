@@ -5,43 +5,48 @@
 <div class="container mt-5">
   <h2 class="mb-4">📄 Bürgschaften</h2>
 
+  {% if not zeige_alle %}
+    <div class="alert alert-info small">
+      Es werden nur <strong>aktive oder teilweise ausgebuchte</strong> Bürgschaften angezeigt.
+      <a href="{{ url_for('buergschaften', zeige_alle=1) }}">🔁 Alle anzeigen</a>
+    </div>
+  {% endif %}
+
   <div class="card mb-3">
     <form method="get" action="{{ url_for('buergschaften') }}">
-      {{ csrf_token() }}  
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <label for="auftragsnummer" class="form-label">Auftragsnummer</label>
-            <input type="text" name="auftragsnummer" id="auftragsnummer" class="form-control"
-                   value="{{ filter_auftragsnummer }}">
-          </div>
-      
-          <div class="col-md-4">
-            <label for="buerge" class="form-label">Bürge</label>
-            <select name="buerge" id="buerge" class="form-select">
-              <option value="">Alle</option>
-              {% for name in buergen_liste %}
-              <option value="{{ name }}" {% if name == filter_buerge %}selected{% endif %}>{{ name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-      
-          <div class="col-md-4">
-            <label for="art" class="form-label">Bürgschaftsart</label>
-            <select name="art" id="art" class="form-select">
-              <option value="">Alle</option>
-              <option value="Vorauszahlungsbürgschaft" {% if filter_art == 'Vorauszahlungsbürgschaft' %}selected{% endif %}>Vorauszahlungsbürgschaft</option>
-              <option value="Vertragserfüllungsbürgschaft" {% if filter_art == 'Vertragserfüllungsbürgschaft' %}selected{% endif %}>Vertragserfüllungsbürgschaft</option>
-              <option value="Gewährleistungsbürgschaft" {% if filter_art == 'Gewährleistungsbürgschaft' %}selected{% endif %}>Gewährleistungsbürgschaft</option>
-            </select>
-          </div>
-      
-          <div class="col-md-12 text-end mt-3">
-            <button type="submit" class="btn btn-primary btn-sm shadow-sm rounded-pill">🔍 Filtern</button>
-            <a href="{{ url_for('buergschaften') }}" class="btn btn-outline-secondary">🔁 Zurücksetzen</a>
-          </div>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label for="auftragsnummer" class="form-label">Auftragsnummer</label>
+          <input type="text" name="auftragsnummer" id="auftragsnummer" class="form-control"
+                 value="{{ filter_auftragsnummer }}">
         </div>
-      </form>
-      
+    
+        <div class="col-md-4">
+          <label for="buerge" class="form-label">Bürge</label>
+          <select name="buerge" id="buerge" class="form-select">
+            <option value="">Alle</option>
+            {% for name in buergen_liste %}
+            <option value="{{ name }}" {% if name == filter_buerge %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+    
+        <div class="col-md-4">
+          <label for="art" class="form-label">Bürgschaftsart</label>
+          <select name="art" id="art" class="form-select">
+            <option value="">Alle</option>
+            <option value="Vorauszahlungsbürgschaft" {% if filter_art == 'Vorauszahlungsbürgschaft' %}selected{% endif %}>Vorauszahlungsbürgschaft</option>
+            <option value="Vertragserfüllungsbürgschaft" {% if filter_art == 'Vertragserfüllungsbürgschaft' %}selected{% endif %}>Vertragserfüllungsbürgschaft</option>
+            <option value="Gewährleistungsbürgschaft" {% if filter_art == 'Gewährleistungsbürgschaft' %}selected{% endif %}>Gewährleistungsbürgschaft</option>
+          </select>
+        </div>
+    
+        <div class="col-md-12 text-end mt-3">
+          <button type="submit" class="btn btn-primary btn-sm shadow-sm rounded-pill">🔍 Filtern</button>
+          <a href="{{ url_for('buergschaften', zeige_alle=1) }}" class="btn btn-outline-secondary">🔁 Zurücksetzen</a>
+        </div>
+      </div>
+    </form>
   </div>
 
   <div class="card">
@@ -83,10 +88,10 @@
             <td>{{ b.buergschaftssumme | currency }} €</td>
             <td>{{ b.buergschaftssumme_aktuell | currency }} €</td>
             <td>
-                {% if b.erstelldatum %}
-                  {{ b.erstelldatum.strftime('%d.%m.%Y') }}
-                {% else %}-{% endif %}
-              </td>
+              {% if b.erstelldatum %}
+                {{ b.erstelldatum.strftime('%d.%m.%Y') }}
+              {% else %}-{% endif %}
+            </td>
             <td>
               {% if b.voraussichtliche_rueckgabe %}
                 {{ b.voraussichtliche_rueckgabe.strftime('%d.%m.%Y') }}
