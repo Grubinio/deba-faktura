@@ -57,6 +57,7 @@ def user_has_role(role_name):
 def inject_user_role_check():
     return dict(user_has_role=user_has_role)
 
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -472,3 +473,7 @@ def api_beguenstigter(auftragsnummer):
         return Response(result['firmenname'], mimetype="text/plain")
     else:
         return Response("Nicht gefunden", status=404, mimetype="text/plain")
+
+@app.route("/ping")
+def ping():
+    return "pong"
