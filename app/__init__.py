@@ -12,3 +12,7 @@ app.debug = True
 
 from .filters import format_currency
 app.jinja_env.filters['currency'] = format_currency
+
+#app.config['SESSION_COOKIE_SECURE'] = True         # Nur über HTTPS senden (aktivieren, wenn SSL aktiv ist) #💡 Hinweis: SESSION_COOKIE_SECURE wirkt nur bei HTTPS – lokal in Entwicklung kannst du es auf False lassen, auf dem Server auf True stellen.
+app.config['SESSION_COOKIE_HTTPONLY'] = True       # Kein JavaScript-Zugriff auf Cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'      # Grundschutz gegen CSRF bei Cross-Site-Requests

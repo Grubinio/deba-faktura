@@ -47,6 +47,13 @@
     <div class="card-header bg-secondary text-white">
       Übersicht
     </div>
+    <div class="d-flex justify-content-end mb-3">
+      <a href="{{ url_for('buergschaft_add') }}" class="btn btn-success"
+         data-bs-toggle="tooltip" data-bs-placement="top"
+         title="Neue Bürgschaft erfassen (Auftragsdaten & Summen)">
+        ➕ Neue Bürgschaft
+      </a>
+    </div>
     <div class="card-body p-0">
       <table class="table table-striped table-hover mb-0">
         <thead class="table-light">

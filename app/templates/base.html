@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}DEBA Faktura{% endblock %}</title>
+
+  <!-- ✅ CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
   <style>
     body {
       padding-top: 70px;
@@ -14,7 +17,7 @@
 </head>
 <body class="{% block bodyclass %}{% endblock %}">
 
-  <!-- Navigation -->
+  <!-- ✅ Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="{{ url_for('home') }}">🛁 DEBA Faktura</a>
@@ -45,10 +48,10 @@
     </div>
   </nav>
 
-  <!-- Hauptinhalt -->
+  <!-- ✅ Hauptinhalt -->
   <div class="container mt-3">
 
-    <!-- ✅ Erfolgs- und Fehlermeldungen -->
+    <!-- ✅ Flash-Nachrichten -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -63,6 +66,7 @@
     {% block content %}{% endblock %}
   </div>
 
+  <!-- ✅ Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
@@ -72,6 +76,11 @@
         dateFormat: "d.m.Y",
         locale: "de",
         allowInput: true
+      });
+
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
       });
     });
   </script>

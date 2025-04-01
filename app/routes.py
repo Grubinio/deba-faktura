@@ -4,39 +4,54 @@ import mysql.connector
 from app import app
 from decimal import Decimal
 from datetime import datetime
+from mysql.connector.pooling import MySQLConnectionPool
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    filename='error.log',
+    level=logging.DEBUG,  # oder ERROR, wenn du nur Fehler willst
+    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+)
 
 app.config['DEBUG'] = True
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
-# MySQL-Verbindung (einfache Variante)
+##DB Connection pooling
+pool = MySQLConnectionPool(
+    pool_name="mypool",
+    pool_size=5,
+    host="localhost",
+    user="faktura_user",
+    password="meinpasswort",
+    database="faktura_app"
+)
+## DB Connection
 def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="faktura_user",
-        password="meinpasswort",
-        database="faktura_app"
-    )
+    try:
+        return pool.get_connection()
+    except mysql.connector.Error as err:
+        app.logger.error(f"DB-Verbindungsfehler: {err}")
+        raise
 
+##Userrollen für Zugriff
 def user_has_role(role_name):
     if 'user_id' not in session:
         return False
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    query = """
-        SELECT 1 FROM user_roles ur
-        JOIN rollen r ON ur.rollen_id = r.id
-        WHERE ur.user_id = %s AND r.bezeichnung = %s
-        LIMIT 1
-    """
-    cursor.execute(query, (session['user_id'], role_name))
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
 
-    return result is not None
+    try:
+        cursor.execute("""
+            SELECT 1 FROM user_roles ur
+            JOIN rollen r ON ur.rollen_id = r.id
+            WHERE ur.user_id = %s AND r.bezeichnung = %s
+            LIMIT 1
+        """, (session['user_id'], role_name))
+        return cursor.fetchone() is not None
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.context_processor
 def inject_user_role_check():
@@ -46,6 +61,7 @@ def inject_user_role_check():
 def index():
     return redirect(url_for('login'))
 
+##Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -55,27 +71,26 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        user = cursor.fetchone()
+        try:
+            cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+            user = cursor.fetchone()
 
-        cursor.close()
-        conn.close()
+            if user and check_password_hash(user['password_hash'], password):
+                session['user'] = user['username']
+                session['user_id'] = user['id']
+                session['vorname'] = user['vorname']
+                session['nachname'] = user['nachname']
 
-        if user and check_password_hash(user['password_hash'], password):
-            session['user'] = user['username']
-            session['user_id'] = user['id']
-            session['vorname'] = user['vorname']
-            session['nachname'] = user['nachname']
-            # ➕ Login-Zeit speichern
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
-            conn.commit()
+                # ➕ Login-Zeit speichern
+                cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
+                conn.commit()
+
+                return redirect(url_for('home'))
+            else:
+                return "Login fehlgeschlagen", 401
+        finally:
             cursor.close()
             conn.close()
-            return redirect(url_for('home'))
-        else:
-            return "Login fehlgeschlagen", 401
 
     return render_template('login.html')
 
@@ -364,6 +379,7 @@ def buergschaft_ausbuchung(buergschaft_id):
         except Exception as e:
             conn.rollback()
             flash(f"❗ Fehler: {str(e)}", "danger")
+            app.logger.error(f"Fehler beim Speichern der Bürgschaft: {str(e)}")
 
     cursor.close()
     conn.close()
@@ -423,7 +439,8 @@ def buergschaft_add():
             return redirect(url_for('buergschaften'))
         except Exception as e:
             conn.rollback()
-            flash(f"Fehler: {str(e)}", "danger")
+            flash(f"❗ Fehler: {str(e)}", "danger")
+            app.logger.error(f"Fehler beim Speichern der Bürgschaft: {str(e)}")
 
     cursor.close()
     conn.close()
