@@ -1,5 +1,10 @@
 import sys
+from dotenv import load_dotenv
 import os
+
+##Für Umgebungsvariablen
+# Hier wird der Pfad zur .env-Datei gesetzt
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Sicherstellen, dass das Projektverzeichnis im Python-Pfad liegt
 sys.path.insert(0, os.path.dirname(__file__))

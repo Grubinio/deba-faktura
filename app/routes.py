@@ -19,12 +19,12 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 ##DB Connection pooling
 pool = MySQLConnectionPool(
-    pool_name="mypool",
-    pool_size=5,
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME")
+    pool_name=app.config['DB_POOL_NAME'],
+    pool_size=app.config['DB_POOL_SIZE'],
+    host=app.config['DB_HOST'],
+    user=app.config['DB_USER'],
+    password=app.config['DB_PASSWORD'],
+    database=app.config['DB_NAME']
 )
 ## DB Connection
 def get_db_connection():
