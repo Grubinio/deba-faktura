@@ -1,23 +1,13 @@
-import sys
-from dotenv import load_dotenv
 import os
+import sys
 
-# .env manuell laden – wichtig für Apache/mod_wsgi!
+# Pfad zur .env-Datei festlegen und laden (ganz am Anfang!)
+from dotenv import load_dotenv
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
-# Projektpfad eintragen
+# Projektverzeichnis zum Python-Pfad hinzufügen
 sys.path.insert(0, os.path.dirname(__file__))
 
-##Für Umgebungsvariablen
-# Hier wird der Pfad zur .env-Datei gesetzt
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
-
-# Sicherstellen, dass das Projektverzeichnis im Python-Pfad liegt
-sys.path.insert(0, os.path.dirname(__file__))
-
+# App laden (jetzt greifen os.getenv() korrekt)
 from app import app as application
-
-# Optional (nur für Entwicklung oder Debug-Zwecke – am besten auslassen in Produktion)
-# application.config['DEBUG'] = True
-# application.config['PROPAGATE_EXCEPTIONS'] = True
