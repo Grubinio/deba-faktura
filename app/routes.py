@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, session, url_for, jsonify,
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
+from app.forms import LoginForm  
 from decimal import Decimal
 from datetime import datetime
 from mysql.connector.pooling import MySQLConnectionPool
@@ -63,37 +64,43 @@ def index():
     return redirect(url_for('login'))
 
 ##Login
+from app.forms import LoginForm  # Oben importieren
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
 
-        try:
-            cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-            user = cursor.fetchone()
+        if user and check_password_hash(user['password_hash'], password):
+            session['user'] = user['username']
+            session['user_id'] = user['id']
+            session['vorname'] = user['vorname']
+            session['nachname'] = user['nachname']
 
-            if user and check_password_hash(user['password_hash'], password):
-                session['user'] = user['username']
-                session['user_id'] = user['id']
-                session['vorname'] = user['vorname']
-                session['nachname'] = user['nachname']
-
-                # ➕ Login-Zeit speichern
-                cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
-                conn.commit()
-
-                return redirect(url_for('home'))
-            else:
-                return "Login fehlgeschlagen", 401
-        finally:
+            # Login-Zeit speichern
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
+            conn.commit()
             cursor.close()
             conn.close()
+            return redirect(url_for('home'))
+        else:
+            flash("❌ Login fehlgeschlagen", "danger")
+            return redirect(url_for('login'))
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
+
 
 
 @app.route('/register', methods=['GET', 'POST'])

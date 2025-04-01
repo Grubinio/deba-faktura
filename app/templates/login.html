@@ -7,18 +7,19 @@
     <h3 class="text-center mb-4">🔒 Login zur DEBA Faktura</h3>
 
     <form method="POST" action="{{ url_for('login') }}">
-      {{ csrf_token() }}
+      {{ form.hidden_tag() }}  {# ← erzeugt CSRF-Token + mögliche hidden fields #}
+    
       <div class="mb-3">
-        <label for="username" class="form-label">Benutzername</label>
-        <input type="text" class="form-control" id="username" name="username" required>
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
       </div>
-
+    
       <div class="mb-3">
-        <label for="password" class="form-label">Passwort</label>
-        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
       </div>
-
-      <button type="submit" class="btn btn-primary btn-sm shadow-sm rounded-pill w-100">Anmelden</button>
+    
+      {{ form.submit(class="btn btn-primary btn-sm shadow-sm rounded-pill w-100") }}
     </form>
   </div>
 </div>

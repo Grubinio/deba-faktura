@@ -1,35 +1,27 @@
 import os
 import logging
-from flask import Flask, g
+from flask import Flask
 from flask_wtf.csrf import CSRFProtect
+from config import Config
 
 # App-Initialisierung
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback123")
+app.config.from_object(Config)  # ← Lädt zentral alle Settings
 
 # CSRF-Schutz aktivieren
 csrf = CSRFProtect(app)
 
 # Logging konfigurieren
-log_path = '/var/log/faktura/faktura_app.log'  # Oder relativer Pfad z. B. ../error.log für lokale Entwicklung
+log_path = '/var/log/faktura/faktura_app.log' if not app.debug else os.path.join(os.path.dirname(__file__), '../error.log')
 logging.basicConfig(
     filename=log_path,
     level=logging.DEBUG,
     format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 )
 
-# Session-Sicherheit
-# Achtung: SESSION_COOKIE_SECURE nur aktivieren, wenn HTTPS aktiv ist!
-# app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-
-# Filter einbinden
+# Eigene Jinja2-Filter einbinden
 from .filters import format_currency
 app.jinja_env.filters['currency'] = format_currency
 
-# Routen einbinden
+# Routes einbinden (ganz am Ende, da sie app brauchen)
 from app import routes
-
-# Debug-Modus (nur bei Entwicklung!)
-app.debug = True
