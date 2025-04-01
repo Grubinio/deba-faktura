@@ -3,8 +3,7 @@ import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
-#Temporär. Später löschen.
-print("🚀 DB_HOST aus .env:", os.getenv("DB_HOST"))
+
 
 from dotenv import load_dotenv
 
@@ -13,6 +12,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '..', '.env'))
 
 from config import Config
+
+#Temporär. Später löschen.
+print("🚀 DB_HOST aus .env:", os.getenv("DB_HOST"))
 
 # App-Initialisierung
 app = Flask(__name__)
