@@ -1,27 +1,35 @@
-#from app.routes import app
-
-from flask import Flask
-from flask import g
+import os
+import logging
+from flask import Flask, g
 from flask_wtf.csrf import CSRFProtect
 
+# App-Initialisierung
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "fallback123")
+
+# CSRF-Schutz aktivieren
 csrf = CSRFProtect(app)
 
+# Logging konfigurieren
+log_path = '/var/log/faktura/faktura_app.log'  # Oder relativer Pfad z. B. ../error.log für lokale Entwicklung
+logging.basicConfig(
+    filename=log_path,
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+)
 
-app = Flask(__name__)
-app.secret_key = 'dein_sicherer_key'
+# Session-Sicherheit
+# Achtung: SESSION_COOKIE_SECURE nur aktivieren, wenn HTTPS aktiv ist!
+# app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-import os
-log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../error.log')
-logging.basicConfig(filename='/var/log/faktura_app.log', ...)
-
-from app import routes
-
-app.debug = True
-
+# Filter einbinden
 from .filters import format_currency
 app.jinja_env.filters['currency'] = format_currency
 
-#app.config['SESSION_COOKIE_SECURE'] = True         # Nur über HTTPS senden (aktivieren, wenn SSL aktiv ist) #💡 Hinweis: SESSION_COOKIE_SECURE wirkt nur bei HTTPS – lokal in Entwicklung kannst du es auf False lassen, auf dem Server auf True stellen.
-app.config['SESSION_COOKIE_HTTPONLY'] = True       # Kein JavaScript-Zugriff auf Cookies
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'      # Grundschutz gegen CSRF bei Cross-Site-Requests
+# Routen einbinden
+from app import routes
 
+# Debug-Modus (nur bei Entwicklung!)
+app.debug = True

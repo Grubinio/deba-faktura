@@ -1,6 +1,11 @@
-from app import app
+import sys
+import os
 
-app.config['DEBUG'] = True
-app.config['PROPAGATE_EXCEPTIONS'] = True
+# Sicherstellen, dass das Projektverzeichnis im Python-Pfad liegt
+sys.path.insert(0, os.path.dirname(__file__))
 
-application = app  # <- Apache sucht nach "application"
+from app import app as application
+
+# Optional (nur für Entwicklung oder Debug-Zwecke – am besten auslassen in Produktion)
+# application.config['DEBUG'] = True
+# application.config['PROPAGATE_EXCEPTIONS'] = True
