@@ -18,6 +18,7 @@
   {% endwith %}
 
   <form method="post">
+    {{ csrf_token() }}
     <div class="mb-3">
       <label for="ausbuchungssumme" class="form-label">Betrag (in Euro)</label>
       <input type="text" class="form-control" name="ausbuchungssumme" required placeholder="z. B. 1.200,00">

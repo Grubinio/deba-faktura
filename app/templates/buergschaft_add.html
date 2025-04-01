@@ -5,6 +5,7 @@
   <h2 class="mb-4">➕ Neue Bürgschaft erfassen</h2>
 
   <form method="post">
+    {{ csrf_token() }}
     <div class="mb-3">
         <label class="form-label d-block">Bürgschaftsart</label>
         <div class="btn-group" role="group" aria-label="Bürgschaftsarten">
