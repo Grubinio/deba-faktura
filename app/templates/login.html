@@ -1,25 +1,34 @@
 {% extends 'base.html' %}
 {% block title %}Login | DEBA Faktura{% endblock %}
 {% block bodyclass %}bg-light{% endblock %}
+
 {% block content %}
 <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
   <div class="card shadow p-4" style="width: 100%; max-width: 500px;">
     <h3 class="text-center mb-4">🔒 Login zur DEBA Faktura</h3>
 
     <form method="POST" action="{{ url_for('login') }}">
-      {{ form.hidden_tag() }}  {# ← erzeugt CSRF-Token + mögliche hidden fields #}
-    
+      {{ form.hidden_tag() }}
+
       <div class="mb-3">
         {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-control") }}
+        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+        {% for error in form.username.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
-    
+
       <div class="mb-3">
         {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-control") }}
+        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+        {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
-    
-      {{ form.submit(class="btn btn-primary btn-sm shadow-sm rounded-pill w-100") }}
+
+      <div>
+        {{ form.submit(class="btn btn-primary btn-sm shadow-sm rounded-pill w-100") }}
+      </div>
     </form>
   </div>
 </div>

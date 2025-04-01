@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, session, url_for, jsonify,
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from app import app
+import os
 from app.forms import LoginForm  
 from decimal import Decimal
 from datetime import datetime
@@ -20,10 +21,10 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 pool = MySQLConnectionPool(
     pool_name="mypool",
     pool_size=5,
-    host="localhost",
-    user="faktura_user",
-    password="meinpasswort",
-    database="faktura_app"
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME")
 )
 ## DB Connection
 def get_db_connection():
