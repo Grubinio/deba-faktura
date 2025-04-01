@@ -255,7 +255,7 @@ def buergschaften():
             b.voraussichtliche_rueckgabe,
             CASE 
                 WHEN b.buergschaftssumme_aktuell = 0 THEN 'Ausgebucht'
-                WHEN b.buergschaftssumme_aktuell < b.buergschaftsnummer THEN 'Teilweise ausgebucht'
+                WHEN b.buergschaftssumme_aktuell < b.buergschaftssumme THEN 'Teilweise ausgebucht'
                 ELSE 'Aktiv'
             END AS status
         FROM buergschaften b
