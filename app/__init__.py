@@ -4,6 +4,9 @@ from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from config import Config
 
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+
 # App-Initialisierung
 app = Flask(__name__)
 app.config.from_object(Config)  # ← Lädt zentral alle Settings
