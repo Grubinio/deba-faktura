@@ -37,33 +37,45 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <table class="table table-striped table-hover mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Auftragsnr.</th>
-            <th>Bezeichnung</th>
-            <th>Kunde</th>
-            <th>Badtypen</th>
-            <th>Bäder</th>
-            <th>Produziert</th>
-            <th>Ausgeliefert</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><a href="{{ url_for('auftrag_detail', auftrag_id=1) }}" class="link-primary">DEBA-2024-001</a></td>
-            <td><a href="{{ url_for('auftrag_detail', auftrag_id=1) }}" class="link-primary">Mö9 Hamburg</a></td>
-            <td><a href="{{ url_for('kunde_detail', kunde_id=12) }}" class="link-primary">Züblin</a></td>
-            <td>3</td>
-            <td>48</td>
-            <td>12</td>
-            <td>6</td>
-            <td><span class="badge bg-warning text-dark">In Produktion</span></td>
-          </tr>
-          <!-- weitere Dummy-Zeilen möglich -->
-        </tbody>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="d-none d-sm-table-cell">Auftragsnr.</th>
+              <th>Bezeichnung</th>
+              <th>Kunde</th>
+              <th  class="d-none d-sm-table-cell">Badtypen</th>
+              <th>Bäder</th>
+              <th  class="d-none d-md-table-cell">Produziert</th>
+              <th  class="d-none d-md-table-cell">Ausgeliefert</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="clickable-row" onclick="window.location='{{ url_for('auftrag_detail', auftrag_id=1) }}'" style="cursor: pointer;">
+              <td>DEBA-2024-001</td>
+              <td>Mö9 Hamburg</td>
+              <td>Züblin</td>
+              <td>3</td>
+              <td>48</td>
+              <td>12</td>
+              <td>6</td>
+              <td><span class="badge bg-warning text-dark">In Produktion</span></td>
+            </tr>
+            <tr class="clickable-row" onclick="window.location='{{ url_for('auftrag_detail', auftrag_id=2) }}'" style="cursor: pointer;">
+              <td>DEBA-2024-002</td>
+              <td>Dummy Auftrag</td>
+              <td>Dummy Kunde</td>
+              <td>2</td>
+              <td>120</td>
+              <td>15</td>
+              <td>2</td>
+              <td><span class="badge bg-warning text-dark">In Produktion</span></td>
+            </tr>
+            <!-- weitere Dummy-Zeilen möglich -->
+          </tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>
