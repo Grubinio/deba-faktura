@@ -7,3 +7,7 @@ __pycache__/
 *.docx
 *.xlsx
 *.xlsb
+key
+key.pub
+*.pem
+*.ppk
