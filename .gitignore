@@ -11,3 +11,12 @@ key
 key.pub
 *.pem
 *.ppk
+.vscode/
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*~
+.idea/
+*.sqlite3
+*.sqlite

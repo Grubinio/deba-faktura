@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Benutzer anlegen – DEBA Faktura{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">➕ Benutzer anlegen</h2>
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      Neuer Benutzer
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.funktion.label(class="form-label") }}
+            {{ form.funktion(class="form-select") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Zurück</a>
+          {{ form.submit(class="btn btn-success") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

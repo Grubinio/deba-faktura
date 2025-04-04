@@ -5,7 +5,7 @@
   <h2 class="mb-4">➕ Neue Bürgschaft erfassen</h2>
 
   <form method="post">
-    {{ csrf_token() }}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="mb-3">
         <label class="form-label d-block">Bürgschaftsart</label>
         <div class="btn-group" role="group" aria-label="Bürgschaftsarten">
@@ -81,7 +81,7 @@
     </div>
 
     <div class="d-flex justify-content-between">
-      <a href="{{ url_for('buergschaften') }}" class="btn btn-secondary">⬅ Abbrechen</a>
+      <a href="{{ url_for('buergschaften.buergschaften') }}" class="btn btn-secondary">⬅ Abbrechen</a>
       <button type="submit" class="btn btn-success">💾 Speichern</button>
     </div>
   </form>

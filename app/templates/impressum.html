@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Impressum{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="card-title mb-4">Impressum</h1>
+
+      <p><strong>Verantwortlich für den Inhalt gemäß § 5 TMG:</strong></p>
+      <p>
+        DEBA Badsysteme GmbH<br>
+        Fuchsberger Str. 1<br>
+        29410 Salzwedel<br>
+        Deutschland<br>
+        GF: Dietrich von Gruben, Henrik Dinesen
+      </p>
+
+      <p><strong>Kontakt:</strong><br>
+        E-Mail: <a href="mailto:info@deba.de">info@deba.de</a><br>
+        Website: <a href="https://www.deba.de" target="_blank">www.deba.de</a>
+      </p>
+
+      <p><strong>Umsatzsteuer-ID:</strong><br>
+        USt-IdNr.: DE274901703
+      </p>
+
+      <p><strong>Haftungshinweis:</strong><br>
+        Diese Anwendung ist ausschließlich für den internen Gebrauch bestimmt.<br>
+        Für die Inhalte externer Links übernehmen wir keine Haftung. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+      </p>
+
+      <a href="{{ url_for('home') }}" class="btn btn-outline-secondary mt-3">Zurück zur Startseite</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

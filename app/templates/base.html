@@ -35,18 +35,23 @@
           {% if session.get('user') %}
             {% if session.get('user_id') and (user_has_role('Fakturierung') or user_has_role('Management') or user_has_role('Superuser')) %}
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('buergschaften') }}">Bürgschaften</a>
+                <a class="nav-link" href="{{ url_for('buergschaften.buergschaften') }}">Bürgschaften</a>
+              </li>
+            {% endif %}
+            {% if user_has_role('Admin') or user_has_role('Superuser') %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">Admin</a>
               </li>
             {% endif %}
             <li class="nav-item">
               <span class="nav-link text-white">👤 {{ session.get('user') }}</span>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">🔓 Logout</a>
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">🔓 Logout</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
             </li>
           {% endif %}
         </ul>
@@ -71,6 +76,10 @@
 
     {% block content %}{% endblock %}
   </div>
+<footer class="text-center mt-5 mb-3 text-muted">
+  <small>&copy; {{ current_year }} DEBA Badsysteme GmbH – <a href="{{ url_for('impressum') }}">Impressum</a></small>
+</footer>
+
 
   <!-- ✅ Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
