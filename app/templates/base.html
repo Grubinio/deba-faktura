@@ -36,7 +36,7 @@
 
     /* ✅ Content rechts neben Sidebar */
     .content-wrapper {
-      padding: 1rem 1rem 2rem 0.5rem; /* 👈 weniger Abstand oben und seitlich */
+      padding: 0.5rem 0.5rem 2rem 0.5rem; /* 👈 Minimaler Abstand */
     }
 
     @media (max-width: 767.98px) {
@@ -93,7 +93,7 @@
 
   <!-- ✅ Hauptlayout mit Sidebar (ab md sichtbar) -->
   <div class="container-fluid">
-    <div class="row">
+    <div class="row g-0"> <!-- 👈 entfernt standardmäßige horizontale Gutter -->
       <!-- ✅ feste Breite per Inline-Style überschrieben -->
       <nav class="d-none d-md-block sidebar p-3" style="width: 200px;">
         <ul class="nav flex-column">
