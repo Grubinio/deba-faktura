@@ -4,6 +4,7 @@ from app.db import get_db_connection
 from app.forms import DeleteUserForm, EditUserForm
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
+import traceback
 
 def user_has_role(role_name):
     if 'user_id' not in session:
@@ -95,35 +96,40 @@ def edit_user(user_id):
     user_rollen = [r['rollen_id'] for r in cursor.fetchall()]
 
     if form.validate_on_submit():
-        # Verhindere, dass sich ein Admin selbst Adminrechte entzieht
-        if user['id'] == session['user_id'] and 'Admin' not in request.form.getlist('rollen_name'):
-            flash("❌ Du kannst dir selbst nicht die Admin-Rechte entziehen!", "danger")
+        try:   
+            # Verhindere, dass sich ein Admin selbst Adminrechte entzieht
+            if user['id'] == session['user_id'] and 'Admin' not in request.form.getlist('rollen_name'):
+                flash("❌ Du kannst dir selbst nicht die Admin-Rechte entziehen!", "danger")
+                return redirect(url_for('admin.edit_user', user_id=user_id))
+
+            cursor.execute("""
+                UPDATE users
+                SET username=%s, email=%s, funktion=%s,
+                    geschlecht=%s, vorname=%s, nachname=%s
+                WHERE id = %s
+            """, (
+                form.username.data,
+                form.email.data,
+                form.funktion.data,
+                form.geschlecht.data,
+                form.vorname.data,
+                form.nachname.data,
+                user_id
+            ))
+            # Rollen aktualisieren
+            cursor.execute("DELETE FROM user_roles WHERE user_id = %s", (user_id,))
+            rollen_ids = request.form.getlist('rollen')
+            for rollen_id in rollen_ids:
+                cursor.execute("INSERT INTO user_roles (user_id, rollen_id) VALUES (%s, %s)", (user_id, rollen_id))
+
+            conn.commit()
+            flash("✅ Benutzer erfolgreich aktualisiert.", "success")
+            return redirect(url_for('admin.admin_dashboard'))
+        except Exception as e:
+            conn.rollback()
+            traceback.print_exc()  # schreibt vollständige Fehler-Traceback ins Terminal
+            flash(f"❌ Fehler beim Speichern: {e}", "danger")
             return redirect(url_for('admin.edit_user', user_id=user_id))
-
-        cursor.execute("""
-            UPDATE users
-            SET username=%s, email=%s, funktion=%s,
-                geschlecht=%s, vorname=%s, nachname=%s
-            WHERE id = %s
-        """, (
-            form.username.data,
-            form.email.data,
-            form.funktion.data,
-            form.geschlecht.data,
-            form.vorname.data,
-            form.nachname.data,
-            user_id
-        ))
-
-        # Rollen aktualisieren
-        cursor.execute("DELETE FROM user_roles WHERE user_id = %s", (user_id,))
-        rollen_ids = request.form.getlist('rollen')
-        for rollen_id in rollen_ids:
-            cursor.execute("INSERT INTO user_roles (user_id, rollen_id) VALUES (%s, %s)", (user_id, rollen_id))
-
-        conn.commit()
-        flash("✅ Benutzer erfolgreich aktualisiert.", "success")
-        return redirect(url_for('admin.admin_dashboard'))
 
     cursor.close()
     conn.close()
