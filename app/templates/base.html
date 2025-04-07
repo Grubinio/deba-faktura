@@ -25,15 +25,15 @@
   </div>
 
   <!-- ✅ Mobile Offcanvas-Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="width: 180px; background-color: #0C2966; color: #ffffff;">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="mobileSidebarLabel">Menü</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body p-2">
       <ul class="nav flex-column">
         <li class="nav-item">
-          <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
+          <a class="nav-link text-white {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.path.startswith(url_for('buergschaften.buergschaften')) %}active{% endif %}" href="{{ url_for('buergschaften.buergschaften') }}">📜 Bürgschaften</a>
