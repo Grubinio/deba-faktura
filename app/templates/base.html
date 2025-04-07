@@ -11,12 +11,12 @@
 
   <!-- ✅ Eigene Styles -->
   <style>
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Sidebar-Grundlayout */
     .sidebar {
       background-color: #0C2966;
       min-height: 100vh;
@@ -32,129 +32,82 @@
       font-weight: bold;
     }
 
-    /* Bereich rechts vom Menü */
     .content-wrapper {
       padding: 2rem;
     }
 
-    /* Tabellen-Layout wie bisher */
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      margin: 1rem 0;
-    }
-
-    .universal-table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 1px solid #e0e0e0;
-      background-color: #fff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      font-size: 0.875rem;
-    }
-
-    .universal-table thead {
-      background-color: #f7f7f7;
-      color: #333;
-    }
-
-    .universal-table thead th {
-      padding: 8px 12px;
-      text-align: left;
-      font-weight: 600;
-      border-bottom: 2px solid #e0e0e0;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-    }
-
-    .universal-table tbody tr:nth-child(even) {
-      background-color: #fafafa;
-    }
-
-    .universal-table tbody tr:nth-child(odd) {
-      background-color: #ffffff;
-    }
-
-    .universal-table tbody td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #eee;
-      color: #333;
-    }
-
-    .universal-table tbody tr:hover {
-      background-color: #eaf6ff;
-      cursor: pointer;
-    }
-
-    /* Responsive Tabellen für kleine Screens */
-    @media (max-width: 768px) {
-      .universal-table thead {
+    @media (max-width: 767.98px) {
+      .sidebar {
         display: none;
       }
-      .universal-table tbody, .universal-table tr, .universal-table td {
+      .mobile-sidebar-toggle {
         display: block;
-        width: 100%;
       }
-      .universal-table tr {
-        margin-bottom: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        overflow: hidden;
-      }
-      .universal-table td {
-        padding: 10px;
-        text-align: right;
-        position: relative;
-      }
-      .universal-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        top: 10px;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #666;
-        font-size: 0.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .mobile-sidebar-toggle {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- ✅ Responsive Burger-Menü oben -->
-  <nav class="navbar navbar-dark bg-dark d-md-none">
-    <div class="container-fluid">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-        <span class="navbar-toggler-icon"></span>
+  <!-- ✅ Toggle-Button für kleine Bildschirme -->
+  <div class="mobile-sidebar-toggle bg-dark text-white p-2">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <span class="fw-bold">🛁 DEBA Faktura</span>
+      <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+        ☰ Menü
       </button>
-      <span class="navbar-brand">🛁 DEBA Faktura</span>
     </div>
-  </nav>
+  </div>
 
+  <!-- ✅ Mobile Offcanvas-Sidebar -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Menü</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path.startswith(url_for('buergschaften.buergschaften')) %}active{% endif %}" href="{{ url_for('buergschaften.buergschaften') }}">📜 Bürgschaften</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path.startswith(url_for('admin.admin_dashboard')) %}active{% endif %}" href="{{ url_for('admin.admin_dashboard') }}">⚙️ Admin</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('auth.logout') }}">🔓 Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ✅ Hauptlayout mit Sidebar (ab md sichtbar) -->
   <div class="container-fluid">
     <div class="row">
-      <!-- ✅ Sidebar links -->
-      <nav class="col-md-2 d-md-block sidebar collapse navbar-collapse" id="sidebarMenu">
-        <div class="position-sticky pt-3">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if request.path.startswith(url_for('buergschaften.buergschaften')) %}active{% endif %}" href="{{ url_for('buergschaften.buergschaften') }}">📜 Bürgschaften</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if request.path.startswith(url_for('admin.admin_dashboard')) %}active{% endif %}" href="{{ url_for('admin.admin_dashboard') }}">⚙️ Admin</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.logout') }}">🔓 Logout</a>
-            </li>
-          </ul>
-        </div>
+      <nav class="col-md-2 d-none d-md-block sidebar p-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.path.startswith(url_for('buergschaften.buergschaften')) %}active{% endif %}" href="{{ url_for('buergschaften.buergschaften') }}">📜 Bürgschaften</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.path.startswith(url_for('admin.admin_dashboard')) %}active{% endif %}" href="{{ url_for('admin.admin_dashboard') }}">⚙️ Admin</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">🔓 Logout</a>
+          </li>
+        </ul>
       </nav>
 
-      <!-- ✅ Hauptbereich rechts -->
       <main class="col-md-10 ms-sm-auto px-md-4 content-wrapper">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
