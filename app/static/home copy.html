@@ -55,26 +55,23 @@
             </tr>
           </thead>
           <tbody>
-            {% if auftraege %}
-              {% for a in auftraege %}
-              <tr onclick="window.location='{{ url_for('auftrag_detail', kurznummer=a.kurznummer) }}'">
-                <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
-                <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
-                <td data-label="Kunde">{{ a.firmenname or '–' }}</td>
-                <td data-label="Auftragssumme">{{ a.auftragssumme | round(2) if a.auftragssumme is not none else '–' }} €</td>
-                <td data-label="Badtypen">{{ a.badtypen_count or 0 }}</td>
-                <td data-label="Bäder">{{ a.baeder_count or 0 }}</td>
-                <td data-label="Produziert">{{ a.produziert_count or 0 }}</td>
-                <td data-label="Ausgeliefert">{{ a.ausgeliefert_count or 0 }}</td>
-                <td data-label="Status">
-                  <span class="badge bg-secondary">{{ a.status }}</span>
-                </td>
-              </tr>
-              {% endfor %}
+            {% for a in auftraege %}
+            <tr onclick="window.location='{{ url_for('auftrag_detail', kurznummer=a.kurznummer) }}'" style="cursor: pointer;">
+              <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
+              <td data-label="Bezeichnung">{{ a.bezeichnung_kurz }}</td>
+              <td data-label="Kunde">{{ a.firmenname }}</td>
+              <td data-label="Eingang">{{ a.auftragseingang.strftime('%d.%m.%Y') if a.auftragseingang else '-' }}</td>
+              <td data-label="Summe">{{ a.auftragssumme or 0 }} €</td>
+              <td data-label="Badtypen">{{ a.badtypen_count }}</td>
+              <td data-label="Bäder">{{ a.baeder_count }}</td>
+              <td data-label="Produziert">{{ a.produziert_count }}</td>
+              <td data-label="Ausgeliefert">{{ a.ausgeliefert_count }}</td>
+              <td data-label="Status">{{ a.status }}</td>
+            </tr>
             {% else %}
-              <tr><td colspan="9" class="text-center text-muted p-3">Keine aktiven Aufträge gefunden.</td></tr>
-            {% endif %}
-          </tbody> 
+            <tr><td colspan="10" class="text-center">Keine aktiven Aufträge gefunden.</td></tr>
+            {% endfor %}
+          </tbody>         
         </table>
       </div>
       {% else %}
