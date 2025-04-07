@@ -21,7 +21,7 @@
     .sidebar {
       background-color: #0C2966;
       min-height: 100vh;
-      width: 200px; /* 👈 Sidebar schmaler */
+      width: 200px;
     }
     .sidebar .nav-link {
       color: #ffffff;
@@ -34,9 +34,8 @@
       font-weight: bold;
     }
 
-    /* ✅ Content rechts neben Sidebar */
     .content-wrapper {
-      padding: 0.5rem 0.5rem 2rem 0.5rem; /* 👈 Minimaler Abstand */
+      padding: 1rem 1rem 2rem 1rem;
     }
 
     @media (max-width: 767.98px) {
@@ -93,7 +92,7 @@
 
   <!-- ✅ Hauptlayout mit Sidebar (ab md sichtbar) -->
   <div class="container-fluid">
-    <div class="row g-0"> <!-- 👈 entfernt standardmäßige horizontale Gutter -->
+    <div class="row">
       <!-- ✅ feste Breite per Inline-Style überschrieben -->
       <nav class="d-none d-md-block sidebar p-3" style="width: 200px;">
         <ul class="nav flex-column">
@@ -113,7 +112,7 @@
       </nav>
 
       <!-- ✅ rechte Seite nimmt verbleibende Breite ein -->
-      <main class="col-md ms-md-auto content-wrapper">
+      <main class="col-md ms-md-auto px-md-4 content-wrapper">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
