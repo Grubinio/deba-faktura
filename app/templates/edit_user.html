@@ -1,70 +1,64 @@
+<!-- templates/edit_user.html -->
 {% extends 'base.html' %}
 {% block title %}Benutzer bearbeiten{% endblock %}
 {% block content %}
 <div class="container mt-5">
   <h3>✏️ Benutzer bearbeiten</h3>
   <form method="POST">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="mb-3">
-      <label for="username" class="form-label">Benutzername</label>
-      <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
-    </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">E-Mail</label>
-      <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
-    </div>
-    <div class="mb-3">
-      <label for="funktion" class="form-label">Funktion</label>
-      <select class="form-select" id="funktion" name="funktion" required>
-        <option value="Management" {% if user.funktion == 'Management' %}selected{% endif %}>Management</option>
-        <option value="Vertrieb" {% if user.funktion == 'Vertrieb' %}selected{% endif %}>Vertrieb</option>
-        <option value="Auftragsabwicklung" {% if user.funktion == 'Auftragsabwicklung' %}selected{% endif %}>Auftragsabwicklung</option>
-        <option value="Debitorenbuchhaltung" {% if user.funktion == 'Debitorenbuchhaltung' %}selected{% endif %}>Debitorenbuchhaltung</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="geschlecht" class="form-label">Geschlecht</label>
-      <select class="form-select" id="geschlecht" name="geschlecht">
-        <option value="Herr" {% if user.geschlecht == 'Herr' %}selected{% endif %}>Herr</option>
-        <option value="Frau" {% if user.geschlecht == 'Frau' %}selected{% endif %}>Frau</option>
-      </select>
-    </div>
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.username.label }}{{ form.username(class="form-control") }}</div>
+    <div class="mb-3">{{ form.email.label }}{{ form.email(class="form-control") }}</div>
+    <div class="mb-3">{{ form.funktion.label }}{{ form.funktion(class="form-select") }}</div>
+    <div class="mb-3">{{ form.geschlecht.label }}{{ form.geschlecht(class="form-select") }}</div>
+    <div class="mb-3">{{ form.vorname.label }}{{ form.vorname(class="form-control") }}</div>
+    <div class="mb-3">{{ form.nachname.label }}{{ form.nachname(class="form-control") }}</div>
     
-    <div class="mb-3">
-      <label for="vorname" class="form-label">Vorname</label>
-      <input type="text" class="form-control" id="vorname" name="vorname" value="{{ user.vorname }}">
-    </div>
-    
-    <div class="mb-3">
-      <label for="nachname" class="form-label">Nachname</label>
-      <input type="text" class="form-control" id="nachname" name="nachname" value="{{ user.nachname }}">
-    </div>
-    
-    <div class="mb-3">
-      <label for="last_login" class="form-label">Letzter Login</label>
-      <input type="text" class="form-control" id="last_login" name="last_login" value="{{ user.last_login or '–' }}" disabled>
-    </div>    
+    <!-- Rollen-Auswahl (AJAX) -->
     <div class="mb-3">
       <label class="form-label">Rollen</label>
-      <div class="row">
+      <div id="rollenCheckboxes" class="row">
         {% for rolle in rollen %}
-          <div class="col-md-4">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="rolle{{ rolle.id }}"
-                     name="rollen" value="{{ rolle.id }}"
-                     {% if rolle.id in user_rollen %}checked{% endif %}>
-              <label class="form-check-label" for="rolle{{ rolle.id }}">
-                {{ rolle.bezeichnung }}
-              </label>
-            </div>
+        <div class="col-md-4">
+          <div class="form-check">
+            <input class="form-check-input rolle-checkbox" type="checkbox"
+                   id="rolle{{ rolle.id }}" name="rollen" value="{{ rolle.id }}"
+                   {% if rolle.id in user_rollen %}checked{% endif %}>
+            <label class="form-check-label" for="rolle{{ rolle.id }}">
+              {{ rolle.bezeichnung }}
+            </label>
           </div>
+        </div>
         {% endfor %}
       </div>
-    </div>    
+    </div>
+
     <div class="d-flex justify-content-between">
       <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Zurück</a>
       <button type="submit" class="btn btn-primary">Änderungen speichern</button>
     </div>
   </form>
 </div>
+
+<!-- AJAX Rollenspeicherung -->
+<script>
+  document.querySelectorAll('.rolle-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+      fetch(`/admin/update_roles/{{ user.id }}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({
+          rolle_id: cb.value,
+          aktiv: cb.checked
+        })
+      }).then(res => res.json()).then(data => {
+        if (data.status !== 'ok') {
+          alert('Fehler: ' + data.message);
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

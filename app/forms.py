@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField, HiddenField
+from wtforms.validators import DataRequired, Email
 
 class LoginForm(FlaskForm):
     username = StringField('Benutzername', validators=[DataRequired()])
@@ -21,3 +21,19 @@ class RegisterForm(FlaskForm):
 
 class DeleteUserForm(FlaskForm):
     submit = SubmitField('Löschen')
+    
+class EditUserForm(FlaskForm):
+    username = StringField('Benutzername', validators=[DataRequired()])
+    email = StringField('E-Mail', validators=[Email()])
+    funktion = SelectField('Funktion', choices=[
+        ('Management', 'Management'),
+        ('Vertrieb', 'Vertrieb'),
+        ('Auftragsabwicklung', 'Auftragsabwicklung'),
+        ('Debitorenbuchhaltung', 'Debitorenbuchhaltung')
+    ], validators=[DataRequired()])
+    geschlecht = SelectField('Geschlecht', choices=[
+        ('Herr', 'Herr'),
+        ('Frau', 'Frau')
+    ])
+    vorname = StringField('Vorname')
+    nachname = StringField('Nachname')
