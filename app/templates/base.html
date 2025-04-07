@@ -17,9 +17,11 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* ✅ Sidebar-Layout */
     .sidebar {
       background-color: #0C2966;
       min-height: 100vh;
+      width: 200px; /* 👈 Sidebar schmaler */
     }
     .sidebar .nav-link {
       color: #ffffff;
@@ -32,6 +34,7 @@
       font-weight: bold;
     }
 
+    /* ✅ Content rechts neben Sidebar */
     .content-wrapper {
       padding: 2rem;
     }
@@ -91,7 +94,8 @@
   <!-- ✅ Hauptlayout mit Sidebar (ab md sichtbar) -->
   <div class="container-fluid">
     <div class="row">
-      <nav class="col-md-2 d-none d-md-block sidebar p-3">
+      <!-- ✅ feste Breite per Inline-Style überschrieben -->
+      <nav class="d-none d-md-block sidebar p-3" style="width: 200px;">
         <ul class="nav flex-column">
           <li class="nav-item">
             <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">🏠 Home</a>
@@ -108,7 +112,8 @@
         </ul>
       </nav>
 
-      <main class="col-md-10 ms-sm-auto px-md-4 content-wrapper">
+      <!-- ✅ rechte Seite nimmt verbleibende Breite ein -->
+      <main class="col-md ms-md-auto px-md-4 content-wrapper">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
