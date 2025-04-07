@@ -71,11 +71,25 @@ def home():
     return redirect(url_for('auth.login'))
 
 
-# --- Weitere Routen (Platzhalter & API) ---
-@app.route('/auftrag/<int:auftrag_id>')
-def auftrag_detail(auftrag_id):
-    return f"Details für Auftrag #{auftrag_id} (Platzhalter)"
+# --- Neue Route: Auftragsdetails über kurznummer ---
+@app.route('/auftrag/<kurznummer>')
+def auftrag_detail(kurznummer):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT * FROM auftraege WHERE kurznummer = %s
+    """, (kurznummer,))
+    auftrag = cursor.fetchone()
+    cursor.close()
+    conn.close()
 
+    if not auftrag:
+        abort(404)
+
+    return f"Details für Auftrag #{kurznummer} (Platzhalter)"#render_template('auftrag_detail.html', auftrag=auftrag)
+
+
+# --- Weitere Routen (Platzhalter & API) ---
 @app.route('/kunde/<int:kunde_id>')
 def kunde_detail(kunde_id):
     return f"Details für Kunde #{kunde_id} (Platzhalter)"

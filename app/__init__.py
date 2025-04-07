@@ -52,3 +52,8 @@ def inject_year():
     from datetime import datetime
     return {'current_year': datetime.now().year}
 
+from app.utils import user_has_role
+
+@app.context_processor
+def inject_user_role_check():
+    return dict(user_has_role=user_has_role)

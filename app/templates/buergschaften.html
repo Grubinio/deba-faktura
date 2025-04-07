@@ -20,7 +20,7 @@
           <input type="text" name="auftragsnummer" id="auftragsnummer" class="form-control"
                  value="{{ filter_auftragsnummer }}">
         </div>
-    
+
         <div class="col-md-4">
           <label for="buerge" class="form-label">Bürge</label>
           <select name="buerge" id="buerge" class="form-select">
@@ -30,7 +30,7 @@
             {% endfor %}
           </select>
         </div>
-    
+
         <div class="col-md-4">
           <label for="art" class="form-label">Bürgschaftsart</label>
           <select name="art" id="art" class="form-select">
@@ -40,7 +40,7 @@
             <option value="Gewährleistungsbürgschaft" {% if filter_art == 'Gewährleistungsbürgschaft' %}selected{% endif %}>Gewährleistungsbürgschaft</option>
           </select>
         </div>
-    
+
         <div class="col-md-12 text-end mt-3">
           <button type="submit" class="btn btn-primary btn-sm shadow-sm rounded-pill">🔍 Filtern</button>
           <a href="{{ url_for('buergschaften.buergschaften', zeige_alle=1) }}" class="btn btn-outline-secondary">🔁 Zurücksetzen</a>
@@ -50,24 +50,21 @@
   </div>
 
   <div class="card">
-    <div class="card-header bg-secondary text-white">
-      Übersicht
-    </div>
-    <div class="d-flex justify-content-end mb-3">
-      <a href="{{ url_for('buergschaften.buergschaft_add') }}" class="btn btn-success"
-         data-bs-toggle="tooltip" data-bs-placement="top"
-         title="Neue Bürgschaft erfassen (Auftragsdaten & Summen)">
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+      <span>Übersicht</span>
+      <a href="{{ url_for('buergschaften.buergschaft_add') }}" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Neue Bürgschaft erfassen">
         ➕ Neue Bürgschaft
       </a>
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover mb-0">
+      {% if buergschaften %}
+      <div class="table-wrapper">
+        <table class="table universal-table table-hover mb-0">
           <thead class="table-light">
             <tr>
               <th class="d-none d-sm-table-cell">Nummer</th>
               <th class="d-none d-sm-table-cell">Auftrag</th>
-              <th>Kurzbezeichnung</th>
+              <th>Kurzbez.</th>
               <th>Bürge</th>
               <th>Art</th>
               <th>Summe</th>
@@ -80,25 +77,25 @@
           </thead>
           <tbody>
             {% for b in buergschaften %}
-            <tr>
-              <td>{{ b.buergschaftsnummer }}</td>
-              <td>{{ b.auftragsnummer }}</td>
-              <td>{{ b.bezeichnung_kurz or "-" }}</td>
-              <td>{{ b.surety }}</td>
-              <td>{{ b.buergschaftsart }}</td>
-              <td>{{ b.buergschaftssumme | currency }} €</td>
-              <td>{{ b.buergschaftssumme_aktuell | currency }} €</td>
-              <td>
+            <tr class="clickable-row" onclick="window.location='{{ url_for('buergschaften.buergschaft_detail', buergschaft_id=b.id) }}'">
+              <td data-label="Nummer">{{ b.buergschaftsnummer }}</td>
+              <td data-label="Auftrag">{{ b.auftragsnummer }}</td>
+              <td data-label="Kurzbezeichnung">{{ b.bezeichnung_kurz or "-" }}</td>
+              <td data-label="Bürge">{{ b.surety }}</td>
+              <td data-label="Art">{{ b.buergschaftsart }}</td>
+              <td data-label="Summe">{{ b.buergschaftssumme }} €</td>
+              <td data-label="Rest">{{ b.buergschaftssumme_aktuell }} €</td>
+              <td data-label="Erstellt">
                 {% if b.erstelldatum %}
                   {{ b.erstelldatum.strftime('%d.%m.%Y') }}
                 {% else %}-{% endif %}
               </td>
-              <td>
+              <td data-label="Rückgabe">
                 {% if b.voraussichtliche_rueckgabe %}
                   {{ b.voraussichtliche_rueckgabe.strftime('%d.%m.%Y') }}
                 {% else %}-{% endif %}
               </td>
-              <td>
+              <td data-label="Status">
                 {% if b.status == 'Aktiv' %}
                   <span class="badge bg-success">{{ b.status }}</span>
                 {% elif b.status == 'Teilweise ausgebucht' %}
@@ -107,14 +104,17 @@
                   <span class="badge bg-secondary">{{ b.status }}</span>
                 {% endif %}
               </td>
-              <td>
+              <td data-label="Details">
                 <a href="{{ url_for('buergschaften.buergschaft_detail', buergschaft_id=b.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        </div>
+      </div>
+      {% else %}
+        <div class="p-3">Keine Bürgschaften gefunden.</div>
+      {% endif %}
     </div>
   </div>
 </div>
