@@ -116,6 +116,8 @@ def api_beguenstigter(auftragsnummer):
     """, (auftragsnummer,))
 
     result = cursor.fetchone()
+    print(f"🔍 Anzahl gefundener Aufträge: {len(auftraege)}")
+    print(f"➡️ Beispiel-Datensatz: {auftraege[0] if auftraege else 'Kein Datensatz'}")
     cursor.close()
     conn.close()
 
