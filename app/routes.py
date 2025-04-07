@@ -52,7 +52,7 @@ def home():
     if 'user' in session:
         stunde = datetime.now().hour
         if stunde < 7:
-            begruessung ="Guten Morgen Frühaufsteher"
+            begruessung = "Guten Morgen Frühaufsteher"
         elif stunde < 10:
             begruessung = "Guten Morgen"
         elif stunde < 14:
@@ -61,14 +61,63 @@ def home():
             begruessung = "Guten Nachmittag"
         else:
             begruessung = "Guten Abend"
+
+        # 📊 Aufträge laden
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+                a.id,
+                a.auftragsnummer,
+                a.kurznummer,
+                a.bezeichnung_kurz,
+                k.firmenname,
+                a.auftragseingang,
+                a.status,
+                (
+                    SELECT SUM(preis_bad + preis_transport + preis_montage)
+                    FROM auftragseingaenge
+                    WHERE auftrag_id = a.id AND typ IN ('Auftragseingang', 'Nachtrag')
+                ) AS auftragssumme,
+                (
+                    SELECT COUNT(*) FROM badtypen WHERE auftrag_id = a.id
+                ) AS badtypen_count,
+                (
+                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
+                ) AS baeder_count,
+                (
+                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
+                ) AS produziert_count,
+                (
+                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
+                ) AS ausgeliefert_count
+            FROM auftraege a
+            LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
+            WHERE a.status != 'Schlussrechnung'
+            ORDER BY a.auftragseingang DESC
+        """)
+        auftraege = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        # 🐛 Logging zur Fehleranalyse
+        logging.debug(f"🔍 Anzahl geladener Aufträge: {len(auftraege)}")
+        if auftraege:
+            logging.debug(f"➡️ Erster Auftrag: {auftraege[0]}")
+        else:
+            logging.warning("⚠️ Keine aktiven Aufträge geladen!")
+
         return render_template(
             'home.html',
             begruessung=begruessung,
             user=session['user'],
             vorname=session['vorname'],
-            nachname=session['nachname']
+            nachname=session['nachname'],
+            auftraege=auftraege
         )
+
     return redirect(url_for('auth.login'))
+
 
 
 # --- Neue Route: Auftragsdetails über kurznummer ---
