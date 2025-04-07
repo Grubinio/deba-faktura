@@ -1,3 +1,45 @@
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .sidebar {
+    background-color: #0C2966;
+    min-height: 100vh;
+    width: 200px;
+  }
+  .sidebar .nav-link {
+    color: #ffffff;
+  }
+  .sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: bold;
+  }
+  
+  .content-wrapper {
+    padding: 1rem 1rem 2rem 1rem;
+  }
+  
+  @media (max-width: 767.98px) {
+    .sidebar {
+      display: none;
+    }
+    .mobile-sidebar-toggle {
+      display: block;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .mobile-sidebar-toggle {
+      display: none;
+    }
+  }
+  
+
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -150,4 +192,3 @@
       border-bottom: none;
     }
   }
-  
