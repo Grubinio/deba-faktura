@@ -39,6 +39,7 @@
     <div class="card-body p-0">
       {% if auftraege %}
       <div class="table-wrapper">
+        <pre>{{ auftraege | pprint }}</pre>
         <table class="table universal-table table-hover table-sm align-middle">
           <thead class="table-secondary">
             <tr>
@@ -56,7 +57,11 @@
           </thead>
           <tbody>
               {% for a in auftraege %}
+              {% if a.kurznummer %}
               <tr onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer) }}'">
+              {% else %}
+              <tr>
+              {% endif %}
                 <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
                 <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
                 <td data-label="Kunde">{{ a.firmenname or '–' }}</td>
