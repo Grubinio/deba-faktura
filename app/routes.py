@@ -77,10 +77,10 @@ def home():
                 (
                     SELECT SUM(preis_bad + preis_transport + preis_montage)
                     FROM auftragseingaenge
-                    WHERE auftrag_id = a.id AND typ IN ('Auftragseingang', 'Nachtrag')
+                    WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
                 ) AS auftragssumme,
                 (
-                    SELECT COUNT(*) FROM badtypen WHERE auftrag_id = a.id
+                    SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
                 ) AS badtypen_count,
                 (
                     SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
