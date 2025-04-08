@@ -3,7 +3,7 @@ import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
-from . import filters
+
 
 print("🚀 Flask-App wird geladen (INIT)")
 
@@ -32,8 +32,9 @@ logging.basicConfig(
 )
 
 # 🧠 Eigene Jinja-Filter
-from .filters import format_currency
+from .filters import format_currency, format_datum
 app.jinja_env.filters['currency'] = format_currency
+app.jinja_env.filters['datum_de'] = format_datum
 
 # 📌 Blueprint-Registrierung
 from app.auth import auth_bp
