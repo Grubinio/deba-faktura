@@ -57,7 +57,7 @@
           <tbody>
             {% if auftraege %}
               {% for a in auftraege %}
-              <tr style="cursor: pointer;" onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer) }}'">
+              <tr style="cursor: pointer;" onclick="window.location='{{ url_for('auftrag_detail', kurznummer=a.kurznummer) }}'">
                 <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
                 <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
                 <td data-label="Kunde">{{ a.firmenname or '–' }}</td>

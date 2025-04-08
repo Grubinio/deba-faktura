@@ -128,8 +128,6 @@ def home():
 
 
 
-
-
 # --- Neue Route: Auftragsdetails über kurznummer ---
 @app.route('/auftrag/<kurznummer>')
 def auftrag_detail(kurznummer):
