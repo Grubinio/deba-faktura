@@ -38,43 +38,7 @@
     </div>
     <div class="card-body p-0">
       {% if auftraege %}
-      <div class="table-wrapper">
-        {# <pre>{{ auftraege | pprint }}</pre> #}
-        <table class="table universal-table table-hover table-sm align-middle">
-          <thead class="table-secondary">
-            <tr>
-              <th>Auftragsnr.</th>
-              <th>Bezeichnung</th>
-              <th>Kunde</th>
-              <th>Auftragseingang</th>
-              <th>Auftragssumme</th>
-              <th>Badtypen</th>
-              <th>Bäder</th>
-              <th>Produziert</th>
-              <th>Ausgeliefert</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for a in auftraege %}
-              <tr {% if a.kurznummer %} onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer|string) }}'" style="cursor:pointer;" {% endif %}>
-                <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
-                <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
-                <td data-label="Kunde">{{ a.firmenname or '–' }}</td>
-                <td data-label="Eingang">{{ a.auftragseingang | datum_de }}</td>
-                <td data-label="Summe">{{ a.auftragssumme | currency }}</td>
-                <td data-label="Badtypen">{{ a.badtypen_count or 0 }}</td>
-                <td data-label="Bäder">{{ a.baeder_count or 0 }}</td>
-                <td data-label="Produziert">{{ a.produziert_count or 0 }}</td>
-                <td data-label="Ausgeliefert">{{ a.ausgeliefert_count or 0 }}</td>
-                <td data-label="Status">
-                  <span class="badge bg-secondary">{{ a.status }}</span>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        {% include '_auftragstabelle.html' %}
       {% else %}
         <div class="p-3 text-muted text-center">Keine aktiven Aufträge vorhanden.</div>
       {% endif %}
