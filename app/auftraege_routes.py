@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, abort, Response
 from app.db import get_db_connection
 
-bp = Blueprint('auftraege', __name__, url_prefix='/auftrag')
+bp = Blueprint('auftraege', __name__, url_prefix='/auftrag') 
+print("✅ Blueprint 'auftraege' erfolgreich registriert!")
 
 @bp.route('/<kurznummer>')
 def auftrag_detail(kurznummer):
