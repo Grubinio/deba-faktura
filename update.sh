@@ -13,7 +13,7 @@ if [ $? -eq 0 ]; then
 else
     echo "❌ Git-Update fehlgeschlagen. Keine Änderungen übernommen."
 fi
-1~#!/bin/bash
+#1~#!/bin/bash
 
 
 #echo "📥 Starte Update der Flask-App vom Git-Repository..."
