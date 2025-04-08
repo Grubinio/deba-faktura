@@ -128,35 +128,12 @@ def home():
 
 
 
-# --- Neue Route: Auftragsdetails über kurznummer ---
-@app.route('/auftrag/<kurznummer>')
-def auftrag_detail(kurznummer):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM auftraege WHERE kurznummer = %s", (kurznummer,))
-    auftrag = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if not auftrag:
-        abort(404)
-
-    return render_template('auftrag_detail.html', auftrag=auftrag)
-
 
 
 # --- Weitere Routen (Platzhalter & API) ---
 @app.route('/kunde/<int:kunde_id>')
 def kunde_detail(kunde_id):
     return f"Details für Kunde #{kunde_id} (Platzhalter)"
-
-@app.route('/auftrag/neuer')
-def neuer_auftrag():
-    return "Neuen Auftrag anlegen (Platzhalter)"
-
-@app.route('/auftrag/filter')
-def filter_auftraege():
-    return "Aufträge filtern (Platzhalter)"
 
 @app.route('/api/beguenstigter/<auftragsnummer>')
 def api_beguenstigter(auftragsnummer):
