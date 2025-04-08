@@ -74,23 +74,32 @@ def home():
                 k.firmenname,
                 a.auftragseingang,
                 a.status,
+
+                -- ✅ korrigierte Auftragssumme
                 (
-                    SELECT SUM(preis_bad + preis_transport + preis_montage)
+                    SELECT SUM(
+                        (preis_bad + preis_transport + preis_montage) * anzahl_baeder
+                    )
                     FROM auftragseingaenge
                     WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
                 ) AS auftragssumme,
+
                 (
                     SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
                 ) AS badtypen_count,
+
                 (
                     SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
                 ) AS baeder_count,
+
                 (
                     SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
                 ) AS produziert_count,
+
                 (
                     SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
                 ) AS ausgeliefert_count
+
             FROM auftraege a
             LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
             WHERE a.status != 'Schlussrechnung'
