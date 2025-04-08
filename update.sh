@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+    echo "❌ Dieses Script muss als root ausgeführt werden." >&2
+    exit 1
+fi
+
+
 echo "📥 Starte Update der Flask-App vom Git-Repository..."
 
 cd /var/www/faktura || exit

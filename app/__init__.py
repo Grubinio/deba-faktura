@@ -3,6 +3,7 @@ import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
+from . import filters
 
 print("🚀 Flask-App wird geladen (INIT)")
 

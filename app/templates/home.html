@@ -62,7 +62,7 @@
                 <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
                 <td data-label="Kunde">{{ a.firmenname or '–' }}</td>
                 <td data-label="Eingang">{{ a.auftragseingang | datum_de }}</td>
-                <td data-label="Auftragssumme">{{ a.auftragssumme | round(2) if a.auftragssumme is not none else '–' }} €</td>
+                <td data-label="Summe">{{ a.auftragssumme | currency }}</td>
                 <td data-label="Badtypen">{{ a.badtypen_count or 0 }}</td>
                 <td data-label="Bäder">{{ a.baeder_count or 0 }}</td>
                 <td data-label="Produziert">{{ a.produziert_count or 0 }}</td>
