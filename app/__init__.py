@@ -40,7 +40,7 @@ app.jinja_env.filters['datum_de'] = format_datum
 from app.auth import auth_bp
 from app.buergschaften import buergschaften_bp
 from app.admin import admin_bp
-from app.auftraege import bp as auftraege_bp
+from app.auftraege_routes import bp as auftraege_bp
 app.register_blueprint(auftraege_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
