@@ -51,7 +51,7 @@ def home():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
 
-    user = session.get('user', 'Unbekannt')  # fallback, falls nicht gesetzt
+    user = session.get('user', 'Unbekannt')
     vorname = session.get('vorname', '')
     nachname = session.get('nachname', '')
 
@@ -67,45 +67,48 @@ def home():
     else:
         begruessung = "Guten Abend"
 
-    # 📊 Aufträge laden
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT
-            a.id,
-            a.auftragsnummer,
-            a.kurznummer,
-            a.bezeichnung_kurz,
-            k.firmenname,
-            a.auftragseingang,
-            a.status,
-            (
-                SELECT SUM(
-                    (preis_bad + preis_transport + preis_montage) * anzahl_baeder
-                )
-                FROM auftragseingaenge
-                WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
-            ) AS auftragssumme,
-            (
-                SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
-            ) AS badtypen_count,
-            (
-                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
-            ) AS baeder_count,
-            (
-                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
-            ) AS produziert_count,
-            (
-                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
-            ) AS ausgeliefert_count
-        FROM auftraege a
-        LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
-        WHERE a.status != 'Schlussrechnung'
-        ORDER BY a.auftragseingang DESC
-    """)
-    auftraege = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    # 📊 DB-Zugriff mit Connection-Pool und "with"
+    auftraege = []
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT
+                    a.id,
+                    a.auftragsnummer,
+                    a.kurznummer,
+                    a.bezeichnung_kurz,
+                    k.firmenname,
+                    a.auftragseingang,
+                    a.status,
+                    (
+                        SELECT SUM(
+                            (preis_bad + preis_transport + preis_montage) * anzahl_baeder
+                        )
+                        FROM auftragseingaenge
+                        WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
+                    ) AS auftragssumme,
+                    (
+                        SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
+                    ) AS badtypen_count,
+                    (
+                        SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
+                    ) AS baeder_count,
+                    (
+                        SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
+                    ) AS produziert_count,
+                    (
+                        SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
+                    ) AS ausgeliefert_count
+                FROM auftraege a
+                LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
+                WHERE a.status != 'Schlussrechnung'
+                ORDER BY a.auftragseingang DESC
+            """)
+            auftraege = cursor.fetchall()
+            cursor.close()
+    except Exception as e:
+        logging.exception("❌ Fehler beim Laden der Auftragsdaten")
 
     # 🐛 Logging zur Fehleranalyse
     logging.debug(f"🔍 Anzahl geladener Aufträge: {len(auftraege)}")
@@ -122,6 +125,7 @@ def home():
         nachname=nachname,
         auftraege=auftraege
     )
+
 
 
 
