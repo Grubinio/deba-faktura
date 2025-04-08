@@ -58,7 +58,7 @@
           <tbody>
               {% for a in auftraege %}
               {% if a.kurznummer %}
-              <tr onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer) }}'">
+              <tr onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer|string) }}'">
               {% else %}
               <tr>
               {% endif %}
