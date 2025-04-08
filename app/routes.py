@@ -1,6 +1,5 @@
 from flask import render_template, request, redirect, session, url_for, jsonify, Response, flash
 from app import app
-from app.forms import DeleteUserForm
 from decimal import Decimal
 from datetime import datetime
 import logging
@@ -49,83 +48,81 @@ def index():
 
 @app.route('/home', endpoint='home')
 def home():
-    if 'user' in session:
-        stunde = datetime.now().hour
-        if stunde < 7:
-            begruessung = "Guten Morgen Frühaufsteher"
-        elif stunde < 10:
-            begruessung = "Guten Morgen"
-        elif stunde < 14:
-            begruessung = "Guten Tag"
-        elif stunde < 17:
-            begruessung = "Guten Nachmittag"
-        else:
-            begruessung = "Guten Abend"
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
 
-        # 📊 Aufträge laden
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT
-                a.id,
-                a.auftragsnummer,
-                a.kurznummer,
-                a.bezeichnung_kurz,
-                k.firmenname,
-                a.auftragseingang,
-                a.status,
+    user = session.get('user', 'Unbekannt')  # fallback, falls nicht gesetzt
+    vorname = session.get('vorname', '')
+    nachname = session.get('nachname', '')
 
-                -- ✅ korrigierte Auftragssumme
-                (
-                    SELECT SUM(
-                        (preis_bad + preis_transport + preis_montage) * anzahl_baeder
-                    )
-                    FROM auftragseingaenge
-                    WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
-                ) AS auftragssumme,
+    stunde = datetime.now().hour
+    if stunde < 7:
+        begruessung = "Guten Morgen Frühaufsteher"
+    elif stunde < 10:
+        begruessung = "Guten Morgen"
+    elif stunde < 14:
+        begruessung = "Guten Tag"
+    elif stunde < 17:
+        begruessung = "Guten Nachmittag"
+    else:
+        begruessung = "Guten Abend"
 
-                (
-                    SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
-                ) AS badtypen_count,
+    # 📊 Aufträge laden
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT
+            a.id,
+            a.auftragsnummer,
+            a.kurznummer,
+            a.bezeichnung_kurz,
+            k.firmenname,
+            a.auftragseingang,
+            a.status,
+            (
+                SELECT SUM(
+                    (preis_bad + preis_transport + preis_montage) * anzahl_baeder
+                )
+                FROM auftragseingaenge
+                WHERE kurznummer = a.kurznummer AND typ IN ('Auftragseingang', 'Nachtrag')
+            ) AS auftragssumme,
+            (
+                SELECT COUNT(*) FROM badtypen WHERE kurznummer = a.kurznummer
+            ) AS badtypen_count,
+            (
+                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
+            ) AS baeder_count,
+            (
+                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
+            ) AS produziert_count,
+            (
+                SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
+            ) AS ausgeliefert_count
+        FROM auftraege a
+        LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
+        WHERE a.status != 'Schlussrechnung'
+        ORDER BY a.auftragseingang DESC
+    """)
+    auftraege = cursor.fetchall()
+    cursor.close()
+    conn.close()
 
-                (
-                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer
-                ) AS baeder_count,
+    # 🐛 Logging zur Fehleranalyse
+    logging.debug(f"🔍 Anzahl geladener Aufträge: {len(auftraege)}")
+    if auftraege:
+        logging.debug(f"➡️ Erster Auftrag: {auftraege[0]}")
+    else:
+        logging.warning("⚠️ Keine aktiven Aufträge geladen!")
 
-                (
-                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND produziert_am IS NOT NULL
-                ) AS produziert_count,
+    return render_template(
+        'home.html',
+        begruessung=begruessung,
+        user=user,
+        vorname=vorname,
+        nachname=nachname,
+        auftraege=auftraege
+    )
 
-                (
-                    SELECT COUNT(*) FROM baeder WHERE auftragsnummer = a.auftragsnummer AND versendet_am IS NOT NULL
-                ) AS ausgeliefert_count
-
-            FROM auftraege a
-            LEFT JOIN kunden k ON a.kundennummer = k.kundennummer
-            WHERE a.status != 'Schlussrechnung'
-            ORDER BY a.auftragseingang DESC
-        """)
-        auftraege = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        # 🐛 Logging zur Fehleranalyse
-        logging.debug(f"🔍 Anzahl geladener Aufträge: {len(auftraege)}")
-        if auftraege:
-            logging.debug(f"➡️ Erster Auftrag: {auftraege[0]}")
-        else:
-            logging.warning("⚠️ Keine aktiven Aufträge geladen!")
-
-        return render_template(
-            'home.html',
-            begruessung=begruessung,
-            user=session['user'],
-            vorname=session['vorname'],
-            nachname=session['nachname'],
-            auftraege=auftraege
-        )
-
-    return redirect(url_for('auth.login'))
 
 
 
@@ -174,8 +171,6 @@ def api_beguenstigter(auftragsnummer):
     """, (auftragsnummer,))
 
     result = cursor.fetchone()
-    print(f"🔍 Anzahl gefundener Aufträge: {len(auftraege)}")
-    print(f"➡️ Beispiel-Datensatz: {auftraege[0] if auftraege else 'Kein Datensatz'}")
     cursor.close()
     conn.close()
 
