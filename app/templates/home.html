@@ -39,7 +39,7 @@
     <div class="card-body p-0">
       {% if auftraege %}
       <div class="table-wrapper">
-        <pre>{{ auftraege | pprint }}</pre>
+        {# <pre>{{ auftraege | pprint }}</pre> #}
         <table class="table universal-table table-hover table-sm align-middle">
           <thead class="table-secondary">
             <tr>
@@ -56,12 +56,8 @@
             </tr>
           </thead>
           <tbody>
-              {% for a in auftraege %}
-              {% if a.kurznummer %}
-              <tr onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer|string) }}'">
-              {% else %}
-              <tr>
-              {% endif %}
+            {% for a in auftraege %}
+              <tr {% if a.kurznummer %} onclick="window.location='{{ url_for('auftraege.auftrag_detail', kurznummer=a.kurznummer|string) }}'" style="cursor:pointer;" {% endif %}>
                 <td data-label="Auftragsnr.">{{ a.auftragsnummer }}</td>
                 <td data-label="Bezeichnung">{{ a.bezeichnung_kurz or '–' }}</td>
                 <td data-label="Kunde">{{ a.firmenname or '–' }}</td>
@@ -75,14 +71,12 @@
                   <span class="badge bg-secondary">{{ a.status }}</span>
                 </td>
               </tr>
-              {% endfor %}
-              <tr><td colspan="9" class="text-center text-muted p-3">Keine aktiven Aufträge gefunden.</td></tr>
-            {% endif %}
-          </tbody> 
+            {% endfor %}
+          </tbody>
         </table>
       </div>
       {% else %}
-        <div class="p-3">Keine aktiven Aufträge vorhanden.</div>
+        <div class="p-3 text-muted text-center">Keine aktiven Aufträge vorhanden.</div>
       {% endif %}
     </div>
   </div>
