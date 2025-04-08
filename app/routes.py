@@ -135,9 +135,7 @@ def home():
 def auftrag_detail(kurznummer):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT * FROM auftraege WHERE kurznummer = %s
-    """, (kurznummer,))
+    cursor.execute("SELECT * FROM auftraege WHERE kurznummer = %s", (kurznummer,))
     auftrag = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -145,7 +143,8 @@ def auftrag_detail(kurznummer):
     if not auftrag:
         abort(404)
 
-    return f"Details für Auftrag #{kurznummer} (Platzhalter)"#render_template('auftrag_detail.html', auftrag=auftrag)
+    return render_template('auftrag_detail.html', auftrag=auftrag)
+
 
 
 # --- Weitere Routen (Platzhalter & API) ---
