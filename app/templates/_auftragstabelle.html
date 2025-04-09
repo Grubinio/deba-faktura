@@ -1,6 +1,12 @@
 {# templates/_auftragstabelle.html #}
+
+<!-- 🔎 Live-Suchfeld -->
+<div class="p-3">
+  <input id="auftragSearchInput" type="text" class="form-control form-control-sm" placeholder="🔍 Aufträge filtern …">
+</div>
+
 <div class="table-wrapper">
-  <table class="table universal-table table-hover table-sm align-middle">
+  <table id="auftragTable" class="table universal-table table-hover table-sm align-middle">
     <thead class="table-secondary">
       <tr>
         <th>Auftragsnr.</th>
@@ -35,3 +41,19 @@
     </tbody>
   </table>
 </div>
+
+<!-- 🔧 JavaScript für Live-Filter -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('auftragSearchInput');
+  const table = document.getElementById('auftragTable');
+  input.addEventListener('keyup', function () {
+    const filter = input.value.toLowerCase();
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(filter) ? '' : 'none';
+    });
+  });
+});
+</script>
