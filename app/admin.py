@@ -248,7 +248,7 @@ def disk_usage():
 
     try:
         result = subprocess.run(
-            ['du', '-h', '--max-depth=3', '/var'],
+            ['du', '-h', '--max-depth=2', '/var'],
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
