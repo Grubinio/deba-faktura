@@ -27,19 +27,6 @@
             </div>
         </div>
 
-        <!-- Speicherplatz -->
-        <div class="col-md-6">
-            <div class="card shadow-sm rounded-2xl">
-                <div class="card-body">
-                    <h5 class="card-title">💾 Festplattenspeicher</h5>
-                    <p class="card-text">{{ disk_used }} GB von {{ disk_total }} GB belegt ({{ disk_percent }} %)</p>
-                    <div class="progress">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ disk_percent }}%;" aria-valuenow="{{ disk_percent }}" aria-valuemin="0" aria-valuemax="100">{{ disk_percent }} %</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- RAM -->
         <div class="col-md-6">
             <div class="card shadow-sm rounded-2xl">
@@ -94,6 +81,23 @@
                 </div>
             </div>
         </div>
+         <!-- Speicherplatz -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">💾 Festplattenspeicher</h5>
+                    <p class="card-text">{{ disk_used }} GB von {{ disk_total }} GB belegt ({{ disk_percent }} %)</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ disk_percent }}%;" aria-valuenow="{{ disk_percent }}" aria-valuemin="0" aria-valuemax="100">{{ disk_percent }} %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadDiskUsage()">📂 Verzeichnisgrößen anzeigen</button>
+            <pre id="disk_usage" class="bg-light p-2 mt-2 d-none" style="font-family: monospace; font-size: 0.9rem;"></pre>
+        </div>
+                  
 
     </div>
 </div>
@@ -111,5 +115,20 @@
     
     setInterval(updateLiveStatus, 5000);
     </script>
+    <script>
+        function loadDiskUsage() {
+            fetch("{{ url_for('admin.disk_usage') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const el = document.getElementById("disk_usage");
+                    el.textContent = data.output || "Keine Daten erhalten.";
+                    el.classList.remove("d-none");
+                })
+                .catch(err => {
+                    console.error("Fehler beim Laden der Ordnergrößen:", err);
+                });
+        }
+        </script>
+        
     
 {% endblock %}
