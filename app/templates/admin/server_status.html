@@ -50,10 +50,10 @@
                 <div class="card-body">
                     <h5 class="card-title">🔐 Fail2Ban gebannte IPs (SSH)</h5>
                     <p class="card-text">
-                        {% if banned_ips.endswith(':') %}
-                            <em>Keine aktiven Sperren</em>
+                        {% if has_banned_ips %}
+                           {{ banned_ips }}
                         {% else %}
-                            {{ banned_ips.replace("Banned IP list: ", "") }}
+                          <em>Keine aktiven Sperren</em>
                         {% endif %}
                     </p>
                 </div>
