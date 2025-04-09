@@ -228,3 +228,15 @@ def server_status():
         has_banned_ips=has_banned_ips
     )
 
+@admin_bp.route('/admin/status/live')
+@admin_required
+def live_status():
+    import psutil
+    mem = psutil.virtual_memory()
+    cpu = psutil.cpu_percent(interval=0.5)
+
+    return {
+        'cpu_percent': cpu,
+        'mem_percent': mem.percent,
+        'mem_used': round(mem.used / (1024 ** 3), 1)
+    }

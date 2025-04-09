@@ -45,7 +45,10 @@
             <div class="card shadow-sm rounded-2xl">
                 <div class="card-body">
                     <h5 class="card-title">🧠 Arbeitsspeicher</h5>
-                    <p class="card-text">{{ mem_used }} GB von {{ mem_total }} GB belegt ({{ mem_percent }} %)</p>
+                    <p class="card-text">
+                        <span id="mem_used">{{ mem_used }}</span> GB von {{ mem_total }} GB belegt 
+                        (<span id="mem_percent">{{ mem_percent }}</span> %)
+                    </p>                      
                     <div class="progress">
                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ mem_percent }}%;" aria-valuenow="{{ mem_percent }}" aria-valuemin="0" aria-valuemax="100">{{ mem_percent }} %</div>
                     </div>
@@ -58,7 +61,7 @@
             <div class="card shadow-sm rounded-2xl">
                 <div class="card-body">
                     <h5 class="card-title">🧮 CPU-Auslastung</h5>
-                    <p class="card-text">{{ cpu_percent }} %</p>
+                    <p class="card-text"><span id="cpu_percent">{{ cpu_percent }}</span> %</p>
                     <div class="progress">
                         <div class="progress-bar bg-warning" role="progressbar" style="width: {{ cpu_percent }}%;" aria-valuenow="{{ cpu_percent }}" aria-valuemin="0" aria-valuemax="100">{{ cpu_percent }} %</div>
                     </div>
@@ -94,4 +97,19 @@
 
     </div>
 </div>
+<script>
+    function updateLiveStatus() {
+        fetch("{{ url_for('admin.live_status') }}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("cpu_percent").textContent = data.cpu_percent;
+                document.getElementById("mem_percent").textContent = data.mem_percent;
+                document.getElementById("mem_used").textContent = data.mem_used;
+            })
+            .catch(error => console.error("Live-Status Fehler:", error));
+    }
+    
+    setInterval(updateLiveStatus, 5000);
+    </script>
+    
 {% endblock %}
