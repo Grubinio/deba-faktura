@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Serverstatus{% endblock %}
 
 {% block content %}
@@ -7,6 +6,16 @@
     <h2 class="mb-4">🔧 Serverstatus</h2>
 
     <div class="row gy-3">
+
+        <!-- Systemzeit -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">🕒 Systemzeit</h5>
+                    <p class="card-text">{{ system_time }} ({{ timezone }})</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Uptime -->
         <div class="col-md-6">
@@ -44,16 +53,39 @@
             </div>
         </div>
 
-        <!-- Fail2Ban -->
+        <!-- CPU -->
         <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">🧮 CPU-Auslastung</h5>
+                    <p class="card-text">{{ cpu_percent }} %</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ cpu_percent }}%;" aria-valuenow="{{ cpu_percent }}" aria-valuemin="0" aria-valuemax="100">{{ cpu_percent }} %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Python & Flask Version -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">⚙️ Python / Flask</h5>
+                    <p class="card-text">Python {{ python_version }}<br>Flask {{ flask_version }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fail2Ban -->
+        <div class="col-12">
             <div class="card shadow-sm rounded-2xl">
                 <div class="card-body">
                     <h5 class="card-title">🔐 Fail2Ban gebannte IPs (SSH)</h5>
                     <p class="card-text">
                         {% if has_banned_ips %}
-                           {{ banned_ips }}
+                            {{ banned_ips }}
                         {% else %}
-                          <em>Keine aktiven Sperren</em>
+                            <em>Keine aktiven Sperren</em>
                         {% endif %}
                     </p>
                 </div>
