@@ -6,13 +6,6 @@ from dotenv import load_dotenv
 from flask_login import LoginManager
 #from app.models import load_user  # falls du `load_user()` separat definiert hast
 
-login_manager = LoginManager()
-login_manager.login_view = 'auth.login'  # oder dein Login-Endpunkt
-login_manager.init_app(app)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return load_user(user_id)  # oder dein konkreter Ladecode
 
 print("🚀 Flask-App wird geladen (INIT)")
 
@@ -28,6 +21,15 @@ print("🚀 DB_HOST aus .env:", os.getenv("DB_HOST"))
 # 🔧 App-Initialisierung
 app = Flask(__name__)
 app.config.from_object(Config)
+
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'  # oder dein Login-Endpunkt
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return load_user(user_id)  # oder dein konkreter Ladecode
+
 
 # 🔒 CSRF-Schutz
 csrf = CSRFProtect(app)
