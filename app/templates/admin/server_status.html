@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Serverstatus{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">🔧 Serverstatus</h2>
+
+    <div class="row gy-3">
+
+        <!-- Uptime -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">🔁 Systemlaufzeit</h5>
+                    <p class="card-text">{{ uptime }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Speicherplatz -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">💾 Festplattenspeicher</h5>
+                    <p class="card-text">{{ disk_used }} GB von {{ disk_total }} GB belegt ({{ disk_percent }} %)</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ disk_percent }}%;" aria-valuenow="{{ disk_percent }}" aria-valuemin="0" aria-valuemax="100">{{ disk_percent }} %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RAM -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">🧠 Arbeitsspeicher</h5>
+                    <p class="card-text">{{ mem_used }} GB von {{ mem_total }} GB belegt ({{ mem_percent }} %)</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ mem_percent }}%;" aria-valuenow="{{ mem_percent }}" aria-valuemin="0" aria-valuemax="100">{{ mem_percent }} %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fail2Ban -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">🔐 Fail2Ban gebannte IPs (SSH)</h5>
+                    <p class="card-text">
+                        {% if banned_ips.endswith(':') %}
+                            <em>Keine aktiven Sperren</em>
+                        {% else %}
+                            {{ banned_ips.replace("Banned IP list: ", "") }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

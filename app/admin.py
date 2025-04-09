@@ -166,3 +166,40 @@ def update_roles(user_id):
     conn.close()
 
     return jsonify(status='ok')
+
+@admin.route('/admin/status')
+@admin_required
+def server_status():
+    import psutil
+    import shutil
+    import platform
+    import subprocess
+
+    # Festplatteninfo
+    disk = shutil.disk_usage("/")
+    disk_total = round(disk.total / (1024 ** 3), 1)
+    disk_used = round(disk.used / (1024 ** 3), 1)
+    disk_free = round(disk.free / (1024 ** 3), 1)
+    disk_percent = int(disk.used / disk.total * 100)
+
+    # RAM-Info
+    mem = psutil.virtual_memory()
+    mem_total = round(mem.total / (1024 ** 3), 1)
+    mem_used = round(mem.used / (1024 ** 3), 1)
+    mem_percent = mem.percent
+
+    # Uptime
+    uptime = subprocess.check_output("uptime -p", shell=True).decode().strip()
+
+    # Fail2Ban gebannte IPs (optional)
+    try:
+        banned = subprocess.check_output("fail2ban-client status sshd | grep 'Banned IP list'", shell=True).decode().strip()
+    except:
+        banned = "unbekannt / nicht verfügbar"
+
+    return render_template('admin/server_status.html', 
+        disk_total=disk_total, disk_used=disk_used, disk_free=disk_free, disk_percent=disk_percent,
+        mem_total=mem_total, mem_used=mem_used, mem_percent=mem_percent,
+        uptime=uptime,
+        banned_ips=banned
+    )
