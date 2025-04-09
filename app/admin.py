@@ -197,9 +197,9 @@ def server_status():
         raw_banned = subprocess.check_output("fail2ban-client status sshd | grep 'Banned IP list'", shell=True).decode().strip()
         banned_ips = raw_banned.replace("Banned IP list: ", "").strip()
         has_banned_ips = bool(banned_ips)
-
     except:
-        banned = "unbekannt / nicht verfügbar"
+        banned_ips = "unbekannt / nicht verfügbar"
+        has_banned_ips = False
 
     return render_template('admin/server_status.html',
         disk_total=disk_total, disk_used=disk_used, disk_free=disk_free, disk_percent=disk_percent,
@@ -207,5 +207,4 @@ def server_status():
         uptime=uptime,
         banned_ips=banned_ips,
         has_banned_ips=has_banned_ips
-)
-
+    )
