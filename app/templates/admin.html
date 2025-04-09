@@ -2,6 +2,12 @@
   {% block title %}Adminbereich – DEBA Faktura{% endblock %}
 
   {% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">👤 Benutzerverwaltung</h2>
+      <a href="{{ url_for('admin.server_status') }}" class="btn btn-outline-primary">
+        📊 Serverstatus
+      </a>
+    </div>
     <div class="container mt-4">
       <h2 class="mb-4">👤 Benutzerverwaltung</h2>
       <!-- Benutzerliste -->
