@@ -270,4 +270,21 @@ def disk_usage():
     except Exception as e:
         return {'error': str(e)}, 500
 
+@admin_bp.route('/admin/status/fail2ban-history')
+@admin_required
+def fail2ban_history():
+    import subprocess
 
+    try:
+        result = subprocess.run(
+            ["zgrep", "Ban", "/var/log/fail2ban.log*"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL
+        )
+        lines = result.stdout.strip().splitlines()
+        # Letzte 20 Einträge
+        recent_bans = lines[-20:] if len(lines) > 20 else lines
+        return {'entries': recent_bans}
+    except Exception as e:
+        return {'error': str(e)}, 500
