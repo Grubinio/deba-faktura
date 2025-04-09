@@ -66,6 +66,22 @@
             </div>
         </div>
 
+        <!-- Aktive Benutzer -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-2xl">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Aktive Benutzer heute</h5>
+                    <p class="card-text">{{ active_users }} eingeloggte Nutzer</p>
+                </div>
+            </div>
+        </div>
+        <!-- Apache-Zugriffsstatistik (Top 5 IPs) -->
+        <div class="mt-4">
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadApacheIPs()">🌐 Top-Zugriffs-IPs anzeigen</button>
+            <ul id="apache_ips" class="list-unstyled mt-2 d-none" style="font-family: monospace; font-size: 0.85rem;"></ul>
+          </div>
+          
+
         <!-- Fail2Ban -->
         <div class="col-md-6">
             <div class="card shadow-sm rounded-2xl">
@@ -153,6 +169,47 @@
                 console.error("Fehler beim Laden:", err);
                 document.getElementById("disk_usage").innerHTML = "⚠️ Fehler: " + err;
             });
+    }
+
+    // 📜 Button-Aktion: Bannverlauf anzeigen
+    function loadBanHistory() {
+    fetch("{{ url_for('admin.fail2ban_history') }}")
+        .then(res => res.json())
+        .then(data => {
+            const el = document.getElementById("fail2ban_history");
+            if (data.entries) {
+                el.textContent = data.entries.join("\n");
+            } else {
+                el.textContent = "⚠️ Fehler: " + (data.error || "Unbekannt");
+            }
+            el.classList.remove("d-none");
+        })
+        .catch(err => {
+            console.error("Fehler beim Laden des Fail2Ban-Verlaufs:", err);
+            document.getElementById("fail2ban_history").textContent = "⚠️ Fehler: " + err;
+        });
+    }
+    function loadApacheIPs() {
+    fetch("{{ url_for('admin.apache_ips') }}")
+        .then(res => res.json())
+        .then(data => {
+            const el = document.getElementById("apache_ips");
+            if (data.top_ips) {
+                el.innerHTML = "";
+                data.top_ips.forEach(([ip, count]) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${ip} – ${count} Zugriffe`;
+                    el.appendChild(li);
+                });
+            } else {
+                el.innerHTML = `<li>⚠️ Fehler: ${data.error || "Unbekannt"}</li>`;
+            }
+            el.classList.remove("d-none");
+        })
+        .catch(err => {
+            console.error("Fehler beim Laden der IPs:", err);
+            document.getElementById("apache_ips").innerHTML = "<li>⚠️ Fehler beim Laden</li>";
+        });
     }
     </script>
         

@@ -178,6 +178,7 @@ def server_status():
     from datetime import datetime
     import flask
     import time
+    from app.db import get_db_connection
 
     # Festplatteninfo
     disk = shutil.disk_usage("/")
@@ -206,6 +207,17 @@ def server_status():
     python_version = platform.python_version()
     flask_version = flask.__version__
 
+    # Anzahl aktiver Benutzer (heute)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM users
+        WHERE DATE(last_login) = CURDATE()
+    """)
+    active_users = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
     # Fail2Ban gebannte IPs
     try:
         raw_banned = subprocess.check_output("fail2ban-client status sshd | grep 'Banned IP list'", shell=True).decode().strip()
@@ -225,8 +237,10 @@ def server_status():
         python_version=python_version,
         flask_version=flask_version,
         banned_ips=banned_ips,
-        has_banned_ips=has_banned_ips
+        has_banned_ips=has_banned_ips,
+        active_users=active_users
     )
+
 
 @admin_bp.route('/admin/status/live')
 @admin_required
@@ -248,7 +262,7 @@ def disk_usage():
 
     try:
         result = subprocess.run(
-            ['du', '-h', '--max-depth=1', '/var'],
+            ['du', '-h', '--max-depth=2', '/'],
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -286,5 +300,24 @@ def fail2ban_history():
         # Letzte 20 Einträge
         recent_bans = lines[-20:] if len(lines) > 20 else lines
         return {'entries': recent_bans}
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+@admin_bp.route('/admin/status/apache-ips')
+@admin_required
+def apache_ips():
+    from collections import Counter
+    import os
+
+    log_file = "/var/log/apache2/grubinio_ssl_access.log"
+    if not os.path.exists(log_file):
+        return {'error': 'Logdatei nicht gefunden'}, 404
+
+    try:
+        with open(log_file) as f:
+            lines = f.readlines()
+        ips = [line.split()[0] for line in lines[-300:]]  # Letzte 300 Zugriffe
+        top_ips = Counter(ips).most_common(5)
+        return {'top_ips': top_ips}
     except Exception as e:
         return {'error': str(e)}, 500
