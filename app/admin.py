@@ -5,6 +5,7 @@ from app.forms import DeleteUserForm, EditUserForm
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
 import traceback
+from app.utils import admin_required
 
 def user_has_role(role_name):
     if 'user_id' not in session:
