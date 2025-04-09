@@ -247,17 +247,15 @@ def disk_usage():
     import subprocess
 
     try:
-        # Pfad anpassen, wenn du lieber / statt /var analysieren willst
         result = subprocess.run(
             ['du', '-h', '--max-depth=1', '/var'],
             text=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,  # unterdrückt die Fehlermeldungen
             timeout=5
         )
-        if result.returncode != 0:
-            return {'error': result.stderr}, 500
         return {'output': result.stdout}
     except Exception as e:
         return {'error': str(e)}, 500
+
 
