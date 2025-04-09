@@ -95,13 +95,16 @@
         </div>
         <div class="mt-3">
             <button class="btn btn-sm btn-outline-secondary" onclick="loadDiskUsage()">📂 Verzeichnisgrößen anzeigen</button>
-            <pre id="disk_usage" class="bg-light p-2 mt-2 d-none" style="font-family: monospace; font-size: 0.9rem;"></pre>
+            <div id="disk_usage" class="mt-2 d-none">
+                <ul id="disk_tree" class="list-unstyled" style="font-family: monospace; font-size: 0.9rem;"></ul>
+            </div>  
         </div>
                   
 
     </div>
 </div>
 <script>
+    // 🔄 Live-Update für RAM und CPU
     function updateLiveStatus() {
         fetch("{{ url_for('admin.live_status') }}")
             .then(response => response.json())
@@ -114,26 +117,38 @@
     }
     
     setInterval(updateLiveStatus, 5000);
-    </script>
-    <script>
-        function loadDiskUsage() {
-            fetch("{{ url_for('admin.disk_usage') }}")
-                .then(res => res.json())
-                .then(data => {
-                    const el = document.getElementById("disk_usage");
-                    if (data.output) {
-                        el.textContent = data.output;
-                    } else {
-                        el.textContent = "⚠️ Fehler: " + (data.error || "Unbekannter Fehler");
-                    }
-                    el.classList.remove("d-none");
-                })
-                .catch(err => {
-                    console.error("Fehler beim Laden:", err);
-                    document.getElementById("disk_usage").textContent = "⚠️ Fehler: " + err;
-                });
-        }
-        </script>
-        
     
+    // 🌳 Verzeichnisbaum aufbauen
+    function buildTree(entries) {
+        const ul = document.getElementById("disk_tree");
+        ul.innerHTML = "";
+    
+        entries.forEach(entry => {
+            const depth = entry.path.split("/").length - 2; // für Einrückung
+            const li = document.createElement("li");
+            li.innerHTML = `${"&nbsp;&nbsp;&nbsp;&nbsp;".repeat(depth)}📁 <strong>${entry.size}</strong> <span>${entry.path}</span>`;
+            ul.appendChild(li);
+        });
+    }
+    
+    // 📂 Button-Aktion: Baum anzeigen
+    function loadDiskUsage() {
+        fetch("{{ url_for('admin.disk_usage') }}")
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById("disk_usage");
+                if (data.entries) {
+                    buildTree(data.entries);
+                } else {
+                    el.innerHTML = "<em>⚠️ Fehler: " + (data.error || "Unbekannt") + "</em>";
+                }
+                el.classList.remove("d-none");
+            })
+            .catch(err => {
+                console.error("Fehler beim Laden:", err);
+                document.getElementById("disk_usage").innerHTML = "⚠️ Fehler: " + err;
+            });
+    }
+    </script>
+        
 {% endblock %}

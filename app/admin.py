@@ -247,9 +247,8 @@ def disk_usage():
     import subprocess
 
     try:
-        # Rohdaten holen, Fehler unterdrücken
         result = subprocess.run(
-            ['du', '-h', '--max-depth=3', '/'],
+            ['du', '-h', '--max-depth=3', '/var'],
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -258,28 +257,16 @@ def disk_usage():
 
         lines = result.stdout.strip().splitlines()
 
-        # Hilfsfunktion zum Umrechnen von Größenangaben
-        def parse_size(line):
-            size_str, path = line.split(maxsplit=1)
-            units = {"K": 1, "M": 1024, "G": 1024**2, "T": 1024**3}
-            if size_str[-1] in units:
-                try:
-                    size_val = float(size_str[:-1])
-                    size_kb = size_val * units[size_str[-1]]
-                except ValueError:
-                    size_kb = 0
-            else:
-                try:
-                    size_kb = float(size_str)
-                except ValueError:
-                    size_kb = 0
-            return size_kb, line
+        # Erzeuge Liste aus dicts: [{'size': '453M', 'path': '/var/lib'}, ...]
+        entries = []
+        for line in lines:
+            try:
+                size, path = line.split(maxsplit=1)
+                entries.append({'size': size, 'path': path})
+            except ValueError:
+                continue
 
-        # Nach Größe sortieren (größte zuerst)
-        sorted_lines = sorted([parse_size(l) for l in lines], key=lambda x: x[0], reverse=True)
-        sorted_output = "\n".join([l[1] for l in sorted_lines])
-
-        return {'output': sorted_output}
+        return {'entries': entries}
     except Exception as e:
         return {'error': str(e)}, 500
 
