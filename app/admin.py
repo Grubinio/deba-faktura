@@ -240,3 +240,15 @@ def live_status():
         'mem_percent': mem.percent,
         'mem_used': round(mem.used / (1024 ** 3), 1)
     }
+
+@admin_bp.route('/admin/status/disk-usage')
+@admin_required
+def disk_usage():
+    import subprocess
+
+    try:
+        # Hole nur Top-Level-Ordner unter /var (oder /, wenn du willst)
+        output = subprocess.check_output(['du', '-h', '--max-depth=1', '/var'], text=True)
+        return {'output': output}
+    except Exception as e:
+        return {'error': str(e)}, 500
