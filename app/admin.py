@@ -168,7 +168,7 @@ def update_roles(user_id):
 
     return jsonify(status='ok')
 
-@admin.route('/admin/status')
+@admin_bp.route('/admin/status')
 @admin_required
 def server_status():
     import psutil
