@@ -3,7 +3,16 @@ import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
+from flask_login import LoginManager
+#from app.models import load_user  # falls du `load_user()` separat definiert hast
 
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'  # oder dein Login-Endpunkt
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return load_user(user_id)  # oder dein konkreter Ladecode
 
 print("🚀 Flask-App wird geladen (INIT)")
 
