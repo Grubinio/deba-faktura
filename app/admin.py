@@ -175,6 +175,9 @@ def server_status():
     import shutil
     import platform
     import subprocess
+    from datetime import datetime
+    import flask
+    import time
 
     # Festplatteninfo
     disk = shutil.disk_usage("/")
@@ -183,16 +186,27 @@ def server_status():
     disk_free = round(disk.free / (1024 ** 3), 1)
     disk_percent = int(disk.used / disk.total * 100)
 
-    # RAM-Info
+    # RAM
     mem = psutil.virtual_memory()
     mem_total = round(mem.total / (1024 ** 3), 1)
     mem_used = round(mem.used / (1024 ** 3), 1)
     mem_percent = mem.percent
 
+    # CPU
+    cpu_percent = psutil.cpu_percent(interval=1)
+
     # Uptime
     uptime = subprocess.check_output("uptime -p", shell=True).decode().strip()
 
-    # Fail2Ban gebannte IPs (optional)
+    # Systemzeit & Zeitzone
+    system_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    timezone = time.tzname[0]
+
+    # Python- und Flask-Version
+    python_version = platform.python_version()
+    flask_version = flask.__version__
+
+    # Fail2Ban gebannte IPs
     try:
         raw_banned = subprocess.check_output("fail2ban-client status sshd | grep 'Banned IP list'", shell=True).decode().strip()
         banned_ips = raw_banned.replace("Banned IP list: ", "").strip()
@@ -204,7 +218,13 @@ def server_status():
     return render_template('admin/server_status.html',
         disk_total=disk_total, disk_used=disk_used, disk_free=disk_free, disk_percent=disk_percent,
         mem_total=mem_total, mem_used=mem_used, mem_percent=mem_percent,
+        cpu_percent=cpu_percent,
         uptime=uptime,
+        system_time=system_time,
+        timezone=timezone,
+        python_version=python_version,
+        flask_version=flask_version,
         banned_ips=banned_ips,
         has_banned_ips=has_banned_ips
     )
+
