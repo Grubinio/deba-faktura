@@ -121,11 +121,16 @@
                 .then(res => res.json())
                 .then(data => {
                     const el = document.getElementById("disk_usage");
-                    el.textContent = data.output || "Keine Daten erhalten.";
+                    if (data.output) {
+                        el.textContent = data.output;
+                    } else {
+                        el.textContent = "⚠️ Fehler: " + (data.error || "Unbekannter Fehler");
+                    }
                     el.classList.remove("d-none");
                 })
                 .catch(err => {
-                    console.error("Fehler beim Laden der Ordnergrößen:", err);
+                    console.error("Fehler beim Laden:", err);
+                    document.getElementById("disk_usage").textContent = "⚠️ Fehler: " + err;
                 });
         }
         </script>

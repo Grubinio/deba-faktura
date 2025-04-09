@@ -247,8 +247,17 @@ def disk_usage():
     import subprocess
 
     try:
-        # Hole nur Top-Level-Ordner unter /var (oder /, wenn du willst)
-        output = subprocess.check_output(['du', '-h', '--max-depth=1', '/var'], text=True)
-        return {'output': output}
+        # Pfad anpassen, wenn du lieber / statt /var analysieren willst
+        result = subprocess.run(
+            ['du', '-h', '--max-depth=1', '/var'],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5
+        )
+        if result.returncode != 0:
+            return {'error': result.stderr}, 500
+        return {'output': result.stdout}
     except Exception as e:
         return {'error': str(e)}, 500
+
