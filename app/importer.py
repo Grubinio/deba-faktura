@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from flask import (
     Blueprint, render_template, request,
     flash, redirect, url_for, abort
@@ -217,7 +218,7 @@ def preview():
         def norm(x):
             if not x:
                 return ''
-            s = re.sub(r'\s+', ' ', x)  # Newlines/tabs/multispaces → single space
+            s = re.sub(r'\s+', ' ', x)  # Newlines, Tabs, Multispaces → single space
             return s.strip().upper()
 
         # Vorab normalisierte Beneficiary-Keys
