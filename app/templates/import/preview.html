@@ -33,24 +33,17 @@
             <td>{{ r.buchung|datum_de }}</td>
             <td class="text-end">{{ r.betrag|currency }}</td>
             <td>{{ r.waehrung or '–' }}</td>
+
             <td>
-              <!-- Dropdown mit allen Kategorien -->
-              <select name="category_{{r.id}}" class="form-select form-select-sm">
+              <select name="category_{{ r.id }}" class="form-select form-select-sm">
                 <option value="">–</option>
                 {% for c in categories %}
-                <option value="{{c.id}}"
-                  {% if r.kategorie_id==c.id %}selected{% endif %}>
-                  {{c.name}}
-                </option>
+                <option
+                  value="{{ c.id }}"
+                  {% if r.default_kat_id == c.id %}selected{% endif %}
+                >{{ c.name }}</option>
                 {% endfor %}
               </select>
-              <!-- Freitext-Eingabe -->
-              <input
-                type="text"
-                name="category_{{r.id}}"
-                class="form-control form-control-sm mt-1"
-                placeholder="oder frei eingeben…"
-              >
             </td>
           </tr>
           {% endfor %}
@@ -59,7 +52,9 @@
     {% endfor %}
 
     <button type="submit" class="btn btn-primary mt-3">Kategorien speichern</button>
-    <a href="{{ url_for('importer.upload') }}" class="btn btn-secondary mt-3 ms-2">&laquo; Neu Import</a>
+    <a href="{{ url_for('importer.upload') }}" class="btn btn-secondary mt-3 ms-2">
+      &laquo; Neu Import
+    </a>
   </form>
 </div>
 {% endblock %}
