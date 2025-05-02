@@ -81,3 +81,7 @@ def internal_server_error(e):
     import traceback
     tb = traceback.format_exc()
     return f"<h1>Fehler 500</h1><p>{e}</p><pre>{tb}</pre>", 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('403.html'), 403
