@@ -188,6 +188,19 @@ def preview():
         categories_dict = {c.name: c.id for c in all_cats}
         logging.debug("   Kategorien vorhanden: %s", list(categories_dict.keys()))
 
+        # direkt nach raws und categories_dict:
+        logging.debug("➤ bene_path=%s exists=%s", bene_path, os.path.exists(bene_path))
+        logging.debug("➤ bene_map keys: %s", list(bene_map.keys()))
+        # und bevor du die Regeln auswertest, pro Row:
+        for r in raws:
+            logging.debug(
+                "  Row %s: beguenstigter=%r, buchungstext=%r",
+                r.id,
+                r.beguenstigter,
+                r.buchungstext
+            )
+            # … dann dein bestehender Matching-Code …
+      
         # Optional: Excel-Mapping für bestimmte Begünstigte
         bene_map = {}
         bene_path = os.path.join(
