@@ -44,14 +44,17 @@ app.jinja_env.filters['currency'] = format_currency
 app.jinja_env.filters['datum_de'] = format_datum
 
 # 📌 Blueprint-Registrierung
-from app.auth import auth_bp
-from app.buergschaften import buergschaften_bp
-from app.admin import admin_bp
 from app.auftraege_routes import bp as auftraege_bp
 app.register_blueprint(auftraege_bp)
+from app.auth import auth_bp
 app.register_blueprint(auth_bp)
+from app.admin import admin_bp
 app.register_blueprint(admin_bp)
+from app.buergschaften import buergschaften_bp
 app.register_blueprint(buergschaften_bp)
+from app.importer import importer_bp
+app.register_blueprint(importer_bp, url_prefix='/import')
+
 
 # 🧭 Weitere Module (z. B. routes) importieren
 from app import routes  # routes.py bleibt (noch) ohne Blueprint

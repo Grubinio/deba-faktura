@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Preview (Platzhalter)</h1>
+  <p>Hier später die Tabelle der eingelesenen Zeilen.</p>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Beispiel</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr><td>{{ r.id }}</td><td>…</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
