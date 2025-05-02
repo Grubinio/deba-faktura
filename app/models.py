@@ -1,0 +1,45 @@
+from app import db
+
+class CategoriesTransaction(db.Model):
+    __tablename__ = 'categories_transactions'
+    id   = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
+class TransactionsRaw(db.Model):
+    __tablename__ = 'transactions_raw'
+    id                = db.Column(db.BigInteger, primary_key=True)
+    import_date       = db.Column(db.DateTime, server_default=db.func.now())
+    auftraggeber      = db.Column(db.String(255))
+    art               = db.Column(db.String(100))
+    kontoname         = db.Column(db.String(100))
+    buchungstext      = db.Column(db.Text)
+    beguenstigter     = db.Column(db.String(255))
+    verwendungszweck  = db.Column(db.Text)
+    buchung           = db.Column(db.Date, nullable=False)
+    wertstellung      = db.Column(db.Date)
+    betrag            = db.Column(db.Numeric(15,2))
+    waehrung          = db.Column(db.CHAR(3))
+    auszugsnr         = db.Column(db.String(50))
+    original_waehrung = db.Column(db.CHAR(3))
+
+class Transaction(db.Model):
+    __tablename__ = 'transactions'
+    id             = db.Column(db.BigInteger, primary_key=True)
+    raw_id         = db.Column(db.BigInteger,
+                        db.ForeignKey('transactions_raw.id', ondelete='CASCADE'),
+                        nullable=False)
+    auftrag_id     = db.Column(db.Integer, db.ForeignKey('auftraege.id'))
+    kategorie_id   = db.Column(db.Integer,
+                        db.ForeignKey('categories_transactions.id'))
+    betrag_orig    = db.Column(db.Numeric(15,2))
+    kurs           = db.Column(db.Numeric(12,6))
+    betrag_eur     = db.Column(db.Numeric(15,2))
+    buchung        = db.Column(db.Date, nullable=False)
+    parent_txn_id  = db.Column(db.BigInteger,
+                        db.ForeignKey('transactions.id'))
+    splittable     = db.Column(db.Boolean, default=True, nullable=False)
+
+    raw      = db.relationship('TransactionsRaw',
+                 backref=db.backref('clean_entries', cascade='all, delete-orphan'))
+    children = db.relationship('Transaction',
+                 backref=db.backref('parent', remote_side=[id]))
