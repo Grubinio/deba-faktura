@@ -12,7 +12,8 @@ from app.models import TransactionsRaw, CategoriesTransaction
 from app.utils import user_has_role
 
 # Blueprint wie gehabt
-importer_bp = Blueprint('importer', __name__)
+importer_bp = Blueprint('importer', __name__, template_folder='templates/import')
+
 
 # Ordner für temporäre Uploads (Projekt-Root/uploads_temp)
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'uploads_temp')
@@ -157,88 +158,93 @@ def upload():
 
 @importer_bp.route('/preview', methods=['GET', 'POST'])
 def preview():
-    # ————————————— POST: Ausgewählte Kategorien speichern —————————————
-    if request.method == 'POST':
-        for key, val in request.form.items():
-            if not key.startswith("category_"):
-                continue
-            raw_id = int(key.split("_", 1)[1])
-            # val ist eine Kategorie-ID
-            if val.isdigit():
-                cat_id = int(val)
-            else:
-                # sollte nicht vorkommen, wir ignorieren hier Freitext
-                continue
-
-            raw = TransactionsRaw.query.get(raw_id)
-            if raw:
-                raw.kategorie_id = cat_id
-
-        db.session.commit()
-        flash("✅ Kategorien gespeichert", "success")
-        return redirect(url_for('importer.preview'))
-
-    # ————————————— GET: Daten vorbereiten —————————————
-
-    # 1) Rohdaten in ID-Reihenfolge
-    raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
-
-    # 2) Alle Kategorien als Dict: name→id
-    categories = {c.name: c.id for c in CategoriesTransaction.query.all()}
-
-    # 3) Excel-Mapping für Begünstigte (optional)
-    bene_map = {}
-    bene_path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        '..', 'Temp', 'Kategorien_nach_Begünstigten.xlsx'
-    )
+    logging.debug("→ Enter preview(), method=%s", request.method)
     try:
-        df_bene = pd.read_excel(bene_path, engine='openpyxl')
-        bene_map = dict(zip(df_bene['Begünstigter'], df_bene['Kategorie']))
-    except FileNotFoundError:
-        logging.warning(f"Beneficiary-Mapping nicht gefunden, überspringe: {bene_path}")
+        # === POST: Kategorien speichern ===
+        if request.method == 'POST':
+            logging.debug("   POST-Daten: %s", request.form.to_dict())
+            for key, val in request.form.items():
+                if not key.startswith("category_"):
+                    continue
+                raw_id = int(key.split("_", 1)[1])
+                if not val.isdigit():
+                    logging.warning("   Ignoriere ungültige Kategorie für raw_id=%s: %s", raw_id, val)
+                    continue
+                cat_id = int(val)
+                raw = TransactionsRaw.query.get(raw_id)
+                if raw:
+                    raw.kategorie_id = cat_id
+                    logging.debug("   Setze raw.id=%s → kategorie_id=%s", raw_id, cat_id)
+            db.session.commit()
+            flash("✅ Kategorien gespeichert", "success")
+            return redirect(url_for('importer.preview'))
+
+        # === GET: Daten vorbereiten ===
+        raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
+        logging.debug("   Geladene Rohdaten: %d Zeilen", len(raws))
+
+        # Kategorien als name→id
+        all_cats = CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
+        categories_dict = {c.name: c.id for c in all_cats}
+        logging.debug("   Kategorien vorhanden: %s", list(categories_dict.keys()))
+
+        # Optional: Excel-Mapping für bestimmte Begünstigte
+        bene_map = {}
+        bene_path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            '..', 'Temp', 'Kategorien_nach_Begünstigten.xlsx'
+        )
+        try:
+            df_bene = pd.read_excel(bene_path, engine='openpyxl')
+            bene_map = dict(zip(df_bene['Begünstigter'], df_bene['Kategorie']))
+            logging.debug("   Beneficiary-Mapping geladen: %s", bene_map)
+        except FileNotFoundError:
+            logging.warning("   Keine Mapping-Excel für Begünstigte gefunden unter %s", bene_path)
+        except Exception as e:
+            logging.exception("   Fehler beim Einlesen des Beneficiary-Mappings")
+
+        # Default-Kategorie berechnen
+        for r in raws:
+            # 1) Manuell bereits gesetzt?
+            if r.kategorie_id:
+                r.default_kat_id = r.kategorie_id
+                continue
+
+            default_name = None
+
+            # 2) Regel A: Verwendungszweck
+            if r.verwendungszweck and str(r.verwendungszweck).startswith("CAL6A0"):
+                default_name = "Umbuchung"
+            # 3) Regel B: spezifische Kombination → Tilgung
+            elif (r.beguenstigter == "DEBA BADSYSTEME GMBH"
+                  and r.buchungstext == "3129391900 BMW BANK GMBH"):
+                default_name = "Tilgung"
+            # 4) Regel C: Excel-Mapping
+            elif bene_map and r.beguenstigter in bene_map:
+                default_name = bene_map[r.beguenstigter]
+
+            # 5) ID setzen, wenn Name existiert
+            r.default_kat_id = categories_dict.get(default_name)
+            logging.debug("   raw.id=%s → default '%s' → kat_id=%s",
+                          r.id, default_name, r.default_kat_id)
+
+        # Gruppieren nach Konto
+        groups = {}
+        for r in raws:
+            parts = (r.kontoname or "").split(',', 1)
+            bank_part = parts[1] if len(parts) > 1 else parts[0]
+            bank = bank_part.strip().split()[0]
+            acct = f"{bank} {r.waehrung}"
+            groups.setdefault(acct, []).append(r)
+        logging.debug("   Gruppierung: %s Konten", list(groups.keys()))
+
+        return render_template(
+            'import/preview.html',
+            groups=groups,
+            categories=all_cats
+        )
+
     except Exception as e:
-        logging.exception("Fehler beim Einlesen des Beneficiary-Mappings")
-
-    # 4) Default-Kategorie pro Zeile bestimmen
-    for r in raws:
-        # wenn manuell schon gesetzt, weiter
-        if r.kategorie_id:
-            r.default_kat_id = r.kategorie_id
-            continue
-
-        default_name = None
-
-        # Regel A: Verwendungszweck beginnt mit CAL6A0 → Umbuchung
-        if r.verwendungszweck and str(r.verwendungszweck).startswith("CAL6A0"):
-            default_name = "Umbuchung"
-
-        # Regel B: DEBA BADSYSTEME GMBH + spezifischer Buchungstext → Tilgung
-        elif (r.beguenstigter == "DEBA BADSYSTEME GMBH"
-              and r.buchungstext == "3129391900 BMW BANK GMBH"):
-            default_name = "Tilgung"
-
-        # Regel C: Mapping aus Excel-Datei
-        elif r.beguenstigter in bene_map:
-            default_name = bene_map[r.beguenstigter]
-
-        # falls Name in categories vorhanden, setze ID, sonst None
-        r.default_kat_id = categories.get(default_name)
-
-    # 5) Gruppieren nach Konto (Bank-Teil + Währung)
-    groups = {}
-    for r in raws:
-        # z.B. aus "EUR 405278169, LBBW/BW-Bank Stuttgart" → "LBBW EUR"
-        parts = r.kontoname.split(',', 1)
-        bank_part = parts[1].strip() if len(parts) > 1 else r.kontoname
-        bank = bank_part.split()[0].split('/')[0]
-        acct = f"{bank} {r.waehrung}"
-        groups.setdefault(acct, []).append(r)
-
-    # 6) Rendern mit allen Kategorien für das Dropdown
-    all_categories = CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
-    return render_template(
-        'import/preview.html',
-        groups=groups,
-        categories=all_categories
-    )
+        # Fange alle unvorhergesehenen Fehler hier ab
+        logging.exception("‼️ Unhandled error in preview()")
+        abort(500)
