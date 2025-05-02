@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, render_template
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 from flask_login import LoginManager
@@ -65,3 +65,13 @@ from app.utils import user_has_role
 @app.context_processor
 def inject_user_role_check():
     return dict(user_has_role=user_has_role)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    import traceback
+    tb = traceback.format_exc()
+    return f"<h1>Fehler 500</h1><p>{e}</p><pre>{tb}</pre>", 500

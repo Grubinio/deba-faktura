@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Ups! Fehler aufgetreten</title>
+  <style>
+    body {
+      font-family: 'Konkhmer Sleokchher', sans-serif;
+      background-color: #fceff1;
+      color: #443;
+      text-align: center;
+      padding: 5%;
+    }
+    h1 { font-size: 3em; }
+    p  { font-size: 1.2em; }
+    a  { color: #e65f82; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>500 – Serverfehler</h1>
+  <p>Wir haben einen 500er...</p>
+  {% if error %}
+  <pre style="color:#b00; font-size:0.9em; margin-top:2em;">
+    {{ error }}
+  </pre>
+{% endif %}
+
+<a href="{{ url_for('home') }}">Zurück zur Startseite</a>
+  <p>Wenn das Problem weiterhin besteht, kontaktiere bitte den Support.</p>
+  <p>Wir entschuldigen uns für die Unannehmlichkeiten.</p>
+
+</body>
+</html>
