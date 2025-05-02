@@ -6,6 +6,7 @@
   <h1>Zahlungsdaten importieren</h1>
 
   <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="mb-3">
       <label for="file" class="form-label">Wähle eine XLSX- oder CSV-Datei</label>
       <input
