@@ -206,7 +206,7 @@ def preview():
         # Default-Kategorie berechnen
         for r in raws:
             # 1) Manuell bereits gesetzt?
-            if r.kategorie_id:
+            if getattr(r, 'kategorie_id', None):
                 r.default_kat_id = r.kategorie_id
                 continue
 

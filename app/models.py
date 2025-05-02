@@ -24,6 +24,17 @@ class TransactionsRaw(db.Model):
     auszugsnr         = db.Column(db.String(50))
     original_waehrung = db.Column(db.CHAR(3))
 
+    # ───────────────────────────────────────────────────────────────────
+    # Neues Feld für die ausgewählte Kategorie:
+    kategorie_id      = db.Column(
+        db.Integer,
+        db.ForeignKey('categories_transactions.id'),
+        nullable=True
+    )
+    # Optional: direkte Beziehung
+    category = db.relationship('CategoriesTransaction', backref='raw_entries')
+
+
 class Transaction(db.Model):
     __tablename__ = 'transactions'
     id             = db.Column(db.BigInteger, primary_key=True)
