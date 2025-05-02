@@ -155,60 +155,90 @@ def upload():
     return render_template('import/upload.html')
 
 
-@importer_bp.route('/preview', methods=['GET','POST'])
+@importer_bp.route('/preview', methods=['GET', 'POST'])
 def preview():
-    # … POST‐Handler bleibt unverändert …
+    # ————————————— POST: Ausgewählte Kategorien speichern —————————————
+    if request.method == 'POST':
+        for key, val in request.form.items():
+            if not key.startswith("category_"):
+                continue
+            raw_id = int(key.split("_", 1)[1])
+            # val ist eine Kategorie-ID
+            if val.isdigit():
+                cat_id = int(val)
+            else:
+                # sollte nicht vorkommen, wir ignorieren hier Freitext
+                continue
 
-    # 1) Alle Roh-Daten laden
+            raw = TransactionsRaw.query.get(raw_id)
+            if raw:
+                raw.kategorie_id = cat_id
+
+        db.session.commit()
+        flash("✅ Kategorien gespeichert", "success")
+        return redirect(url_for('importer.preview'))
+
+    # ————————————— GET: Daten vorbereiten —————————————
+
+    # 1) Rohdaten in ID-Reihenfolge
     raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
-    # 2) Alle Kategorien laden
+
+    # 2) Alle Kategorien als Dict: name→id
     categories = {c.name: c.id for c in CategoriesTransaction.query.all()}
 
-    # 3) Excel‐Mapping für Begünstigte laden (optional)
-    bene_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                              '..','Temp','Kategorien_nach_Begünstigten.xlsx')
-    if os.path.exists(bene_path):
+    # 3) Excel-Mapping für Begünstigte (optional)
+    bene_map = {}
+    bene_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        '..', 'Temp', 'Kategorien_nach_Begünstigten.xlsx'
+    )
+    try:
         df_bene = pd.read_excel(bene_path, engine='openpyxl')
         bene_map = dict(zip(df_bene['Begünstigter'], df_bene['Kategorie']))
-    else:
-        bene_map = {}
+    except FileNotFoundError:
+        logging.warning(f"Beneficiary-Mapping nicht gefunden, überspringe: {bene_path}")
+    except Exception as e:
+        logging.exception("Fehler beim Einlesen des Beneficiary-Mappings")
 
     # 4) Default-Kategorie pro Zeile bestimmen
     for r in raws:
-        # wenn schon manuell gesetzt, nichts ändern
+        # wenn manuell schon gesetzt, weiter
         if r.kategorie_id:
             r.default_kat_id = r.kategorie_id
             continue
 
-        default = None
+        default_name = None
 
         # Regel A: Verwendungszweck beginnt mit CAL6A0 → Umbuchung
         if r.verwendungszweck and str(r.verwendungszweck).startswith("CAL6A0"):
-            default = "Umbuchung"
+            default_name = "Umbuchung"
 
-        # Regel B: Begünstigter = DEBA BADSYSTEME GMBH + Buchungstext = …BMW BANK GMBH → Tilgung
+        # Regel B: DEBA BADSYSTEME GMBH + spezifischer Buchungstext → Tilgung
         elif (r.beguenstigter == "DEBA BADSYSTEME GMBH"
               and r.buchungstext == "3129391900 BMW BANK GMBH"):
-            default = "Tilgung"
+            default_name = "Tilgung"
 
-        # Regel C: fixe Zuordnung per Beneficiary‐Mapping aus Excel
+        # Regel C: Mapping aus Excel-Datei
         elif r.beguenstigter in bene_map:
-            default = bene_map[r.beguenstigter]
+            default_name = bene_map[r.beguenstigter]
 
-        # Fallback: keine Vorgabe
-        if default and default in categories:
-            r.default_kat_id = categories[default]
-        else:
-            r.default_kat_id = None
+        # falls Name in categories vorhanden, setze ID, sonst None
+        r.default_kat_id = categories.get(default_name)
 
-    # 5) Gruppierung wie gehabt
+    # 5) Gruppieren nach Konto (Bank-Teil + Währung)
     groups = {}
     for r in raws:
-        acct = f"{r.kontoname.split(',',1)[1].split()[0]} {r.waehrung}"
+        # z.B. aus "EUR 405278169, LBBW/BW-Bank Stuttgart" → "LBBW EUR"
+        parts = r.kontoname.split(',', 1)
+        bank_part = parts[1].strip() if len(parts) > 1 else r.kontoname
+        bank = bank_part.split()[0].split('/')[0]
+        acct = f"{bank} {r.waehrung}"
         groups.setdefault(acct, []).append(r)
 
+    # 6) Rendern mit allen Kategorien für das Dropdown
+    all_categories = CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
     return render_template(
         'import/preview.html',
         groups=groups,
-        categories=CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
+        categories=all_categories
     )
