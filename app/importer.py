@@ -77,20 +77,24 @@ def upload():
 
             # 4) Objekte erzeugen
             raws = []
-            for idx, row in df.iterrows():
+            for _, row in df.iterrows():
                 raws.append(TransactionsRaw(
-                    auftraggeber      = row.get('auftraggeber'),
-                    art               = row.get('art'),
-                    kontoname         = row.get('kontoname'),
-                    buchungstext      = row.get('buchungstext'),
-                    beguenstigter     = row.get('beguenstigter'),
-                    verwendungszweck  = row.get('verwendungszweck'),
-                    buchung           = row.get('buchung'),
-                    wertstellung      = row.get('wertstellung'),
-                    betrag            = row.get('betrag'),
-                    waehrung          = row.get('waehrung'),
-                    auszugsnr         = row.get('auszugsnr'),
-                    original_waehrung = row.get('original_waehrung'),
+                    auftraggeber      = row['auftraggeber']      if pd.notnull(row['auftraggeber'])      else None,
+                    art               = row['art']               if pd.notnull(row['art'])               else None,
+                    kontoname         = row['kontoname']         if pd.notnull(row['kontoname'])         else None,
+                    buchungstext      = row['buchungstext']      if pd.notnull(row['buchungstext'])      else None,
+                    beguenstigter     = row['beguenstigter']     if pd.notnull(row['beguenstigter'])     else None,
+                    verwendungszweck  = row['verwendungszweck']  if pd.notnull(row['verwendungszweck'])  else None,
+                    # Datumsfelder: NaT → None, ansonsten Datumsteil extrahieren
+                    buchung           = (row['buchung'].date() 
+                                        if pd.notnull(row['buchung']) else None),
+                    wertstellung      = (row['wertstellung'].date() 
+                                        if pd.notnull(row['wertstellung']) else None),
+                    # Numerisch → None bei nan
+                    betrag            = row['betrag']            if pd.notnull(row['betrag'])            else None,
+                    waehrung          = row['waehrung']          if pd.notnull(row['waehrung'])          else None,
+                    auszugsnr         = row['auszugsnr']         if pd.notnull(row['auszugsnr'])         else None,
+                    original_waehrung = row['original_waehrung'] if pd.notnull(row['original_waehrung']) else None,
                 ))
             db.session.bulk_save_objects(raws)
             db.session.commit()
