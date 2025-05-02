@@ -124,14 +124,29 @@ def upload():
 
     return render_template('import/upload.html')
 
+
 @importer_bp.route('/preview')
 def preview():
-    from app.models import TransactionsRaw
-    # Letzte 100 Roh-Einträge holen, absteigend nach Import-Datum
+    # hole alle Roh-Daten (ggf. mit Limit und Sort)
     raws = (
         TransactionsRaw.query
         .order_by(TransactionsRaw.import_date.desc())
-        .limit(100)
         .all()
     )
-    return render_template('import/preview.html', raws=raws)
+
+    # gruppiere nach „Bank + Währung“
+    groups: dict[str, list[TransactionsRaw]] = {}
+    for r in raws:
+        # Original-Kontoname aus dem Import, z.B. "EUR 405278169, LBBW/BW-Bank Stuttgart"
+        raw_name = r.kontoname or ""
+        parts = raw_name.split(',', 1)
+        # Teil nach dem Komma (Bank-Teil), falle zurück auf raw_name wenn kein Komma
+        bank_part = parts[1].strip() if len(parts) > 1 else raw_name
+        # nimm vor dem ersten Leer- oder Slash-Zeichen
+        bank = bank_part.split()[0].split('/')[0]
+        # einfache Kontobezeichnung
+        acct = f"{bank} {r.waehrung}"
+
+        groups.setdefault(acct, []).append(r)
+
+    return render_template('import/preview.html', groups=groups)

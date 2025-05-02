@@ -5,40 +5,38 @@
 <div class="container mt-4">
   <h1>Import-Vorschau</h1>
 
-  {% if raws %}
-  <table class="table table-striped table-sm">
-    <thead class="table-dark">
-      <tr>
-        <th>ID</th>
-        <th>Buchung</th>
-        <th>Wertstellung</th>
-        <th class="text-end">Betrag</th>
-        <th>Begünstigter</th>
-        <th>Verwendungszweck</th>
-        <th>Buchungstext</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in raws %}
-      <tr>
-        {# 1. ID ist der Primärschlüssel aus transactions_raw, also Deine Zeilen­nummer in der Roh-Tabelle #}
-        <td>{{ r.id }}</td>
-
-        {# 2. Datum TT.MM.JJJJ via Deinem Jinja-Filter #}
-        <td>{{ r.buchung|datum_de }}</td>
-        <td>{{ r.wertstellung|datum_de }}</td>
-
-        {# 3. Betrag mit Tausender‐Punkt, Komma‐Dezimal und rechtsbündig #}
-        <td class="text-end">{{ r.betrag|currency }}</td>
-
-        {# 4./5. beguenstigter & verwendungszweck – wenn leer, ein Platzhalter #}
-        <td>{{ r.beguenstigter or '–' }}</td>
-        <td>{{ r.verwendungszweck or '–' }}</td>
-        <td>{{ r.buchungstext or '–' }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% if groups %}
+    {% for account, rows in groups.items() %}
+      <h2 class="mt-5">{{ account }}</h2>
+      <table class="table table-striped table-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Buchung</th>
+            <th>Wertstellung</th>
+            <th class="text-end">Betrag</th>
+            <th>Begünstigter</th>
+            <th>Verwendungszweck</th>
+            <th>Buchungstext</th>
+            <th>Original Konto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.buchung|datum_de }}</td>
+            <td>{{ r.wertstellung|datum_de }}</td>
+            <td class="text-end">{{ r.betrag|currency }}</td>
+            <td>{{ r.beguenstigter or '–' }}</td>
+            <td>{{ r.verwendungszweck or '–' }}</td>
+            <td>{{ r.buchungstext or '–' }}</td>
+            <td>{{ r.kontoname }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endfor %}
   {% else %}
     <p class="text-muted">Noch keine Rohdaten importiert.</p>
   {% endif %}
