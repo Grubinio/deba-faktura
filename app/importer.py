@@ -6,7 +6,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 import pandas as pd
-
+import hashlib  
 from app import db
 from app.models import TransactionsRaw, CategoriesTransaction
 from app.utils import user_has_role
@@ -36,8 +36,28 @@ def upload():
             flash("Bitte eine XLSX- oder CSV-Datei auswählen.", "warning")
             return redirect(request.url)
 
+        # 0) Datei speichern wie gehabt
         filename = secure_filename(file.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+
+        # 1) SHA256-Hash der Datei
+        with open(filepath, 'rb') as f:
+            file_hash = hashlib.sha256(f.read()).hexdigest()
+
+        # 2) Prüfen, ob der Hash schon da ist
+        from app.models import ImportBatch
+        if ImportBatch.query.filter_by(file_hash=file_hash).first():
+            flash("Diese Datei wurde bereits importiert.", "warning")
+            os.remove(filepath)
+            return redirect(request.url)
+
+        # 3) Neue Batch anlegen
+        batch = ImportBatch(file_hash=file_hash, filename=filename)
+        db.session.add(batch)
+        db.session.commit()
+
+
         try:
             # 1) Datei speichern
             file.save(filepath)
