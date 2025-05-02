@@ -4,6 +4,7 @@ from flask import Flask, render_template
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 #from app.models import load_user  # falls du `load_user()` separat definiert hast
 
 # 📌 .env laden
@@ -15,6 +16,8 @@ from config import Config
 # 🔧 App-Initialisierung
 app = Flask(__name__)
 app.config.from_object(Config)
+
+db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'  # oder dein Login-Endpunkt

@@ -15,3 +15,10 @@ class Config:
     #neu
     DB_POOL_NAME = os.getenv("DB_POOL_NAME", "mypool")
     DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", 5))
+    
+    # → SQLAlchemy-URI aus deinen DB-Variablen zusammenbauen
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    )
+    # → Deaktiviert den Change-Tracker (sorgt für weniger Overhead)
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
