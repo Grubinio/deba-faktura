@@ -1,4 +1,6 @@
 from app import db
+import hashlib
+from datetime import datetime
 
 class CategoriesTransaction(db.Model):
     __tablename__ = 'categories_transactions'
@@ -43,3 +45,10 @@ class Transaction(db.Model):
                  backref=db.backref('clean_entries', cascade='all, delete-orphan'))
     children = db.relationship('Transaction',
                  backref=db.backref('parent', remote_side=[id]))
+
+class ImportBatch(db.Model):
+    __tablename__ = 'import_batches'
+    id         = db.Column(db.Integer, primary_key=True)
+    file_hash  = db.Column(db.String(64), unique=True, nullable=False)
+    filename   = db.Column(db.String(255), nullable=False)
+    imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
