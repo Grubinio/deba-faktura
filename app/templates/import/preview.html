@@ -17,7 +17,6 @@
             <th>Begünstigter/Zahlungspflichtiger</th>
             <th>Verwendungszweck</th>
             <th>Buchung</th>
-            <th>Wertstellung</th>
             <th class="text-end">Betrag</th>
             <th>Währung</th>
           </tr>
@@ -31,7 +30,6 @@
             <td>{{ r.beguenstigter or '–' }}</td>
             <td>{{ r.verwendungszweck or '–' }}</td>
             <td>{{ r.buchung|datum_de }}</td>
-            <td>{{ r.wertstellung|datum_de }}</td>
             <td class="text-end">{{ r.betrag|currency }}</td>
             <td>{{ r.waehrung or '–' }}</td>
           </tr>
