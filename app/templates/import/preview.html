@@ -1,21 +1,50 @@
 {% extends "base.html" %}
+{% block title %}Import-Vorschau{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-  <h1>Preview (Platzhalter)</h1>
-  <p>Hier später die Tabelle der eingelesenen Zeilen.</p>
-  <table class="table">
-    <thead><tr><th>ID</th><th>Beispiel</th></tr></thead>
+  <h1>Import-Vorschau</h1>
+
+  {% if raws %}
+  <table class="table table-striped table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Buchung</th>
+        <th>Wertstellung</th>
+        <th class="text-end">Betrag</th>
+        <th>Begünstigter</th>
+        <th>Verwendungszweck</th>
+        <th>Buchungstext</th>
+      </tr>
+    </thead>
     <tbody>
       {% for r in raws %}
       <tr>
+        {# 1. ID ist der Primärschlüssel aus transactions_raw, also Deine Zeilen­nummer in der Roh-Tabelle #}
         <td>{{ r.id }}</td>
-        <td>{{ r.buchung }}</td>
-        <td>{{ r.wertstellung }}</td>
-        <td>{{ r.betrag }}</td>
-        <td>{{ r.buchungstext }}</td>
+
+        {# 2. Datum TT.MM.JJJJ via Deinem Jinja-Filter #}
+        <td>{{ r.buchung|datum_de }}</td>
+        <td>{{ r.wertstellung|datum_de }}</td>
+
+        {# 3. Betrag mit Tausender‐Punkt, Komma‐Dezimal und rechtsbündig #}
+        <td class="text-end">{{ r.betrag|currency }}</td>
+
+        {# 4./5. beguenstigter & verwendungszweck – wenn leer, ein Platzhalter #}
+        <td>{{ r.beguenstigter or '–' }}</td>
+        <td>{{ r.verwendungszweck or '–' }}</td>
+        <td>{{ r.buchungstext or '–' }}</td>
       </tr>
       {% endfor %}
-    </tbody>    
+    </tbody>
   </table>
+  {% else %}
+    <p class="text-muted">Noch keine Rohdaten importiert.</p>
+  {% endif %}
+
+  <a href="{{ url_for('importer.upload') }}" class="btn btn-secondary mt-3">
+    &laquo; Zurück zum Import
+  </a>
 </div>
 {% endblock %}
