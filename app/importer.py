@@ -45,9 +45,16 @@ def upload():
 
             # 2) DataFrame einlesen
             if filename.lower().endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(filepath, sheet_name='IST-Zahlungsdaten', engine='openpyxl')
+                xls = pd.ExcelFile(filepath, engine='openpyxl')
+                target_sheet = 'IST-Zahlungsdaten'
+                if target_sheet in xls.sheet_names:
+                    df = xls.parse(target_sheet)
+                else:
+                    # Fallback: erstes Sheet
+                    df = xls.parse(xls.sheet_names[0])
             else:
                 df = pd.read_csv(filepath)
+
 
             # 3) Spalten umbenennen
             df = df.rename(columns={
