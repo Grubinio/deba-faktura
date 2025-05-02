@@ -28,12 +28,22 @@ def check_roles():
     if not any(user_has_role(r) for r in ('Superuser','Buchhaltung','Management')):
         abort(403)
 
+ALLOWED_EXTENSIONS = {'xlsx', 'csv'}  # .xls fliegt raus
+
 @importer_bp.route('/', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
         file = request.files.get('file')
-        if not file or not allowed_file(file.filename):
-            flash("Bitte eine XLSX- oder CSV-Datei auswählen.", "warning")
+        if not file:
+            flash("Keine Datei ausgewählt.", "warning")
+            return redirect(request.url)
+
+        ext = file.filename.rsplit('.',1)[-1].lower()
+        if ext == 'xls':
+            flash("Alte .xls-Dateien bitte in .xlsx umwandeln oder als CSV speichern.", "warning")
+            return redirect(request.url)
+        if ext not in ALLOWED_EXTENSIONS:
+            flash("Nur .xlsx und .csv sind erlaubt.", "warning")
             return redirect(request.url)
 
         # 0) Datei speichern wie gehabt

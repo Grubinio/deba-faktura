@@ -12,26 +12,28 @@
         <thead class="table-dark">
           <tr>
             <th>ID</th>
+            <th>Art</th>
+            <th>Buchungstext</th>
+            <th>Begünstigter/Zahlungspflichtiger</th>
+            <th>Verwendungszweck</th>
             <th>Buchung</th>
             <th>Wertstellung</th>
             <th class="text-end">Betrag</th>
-            <th>Begünstigter</th>
-            <th>Verwendungszweck</th>
-            <th>Buchungstext</th>
-            <th>Original Konto</th>
+            <th>Währung</th>
           </tr>
         </thead>
         <tbody>
           {% for r in rows %}
           <tr>
             <td>{{ r.id }}</td>
+            <td>{{ r.art or '–' }}</td>
+            <td>{{ r.buchungstext or '–' }}</td>
+            <td>{{ r.beguenstigter or '–' }}</td>
+            <td>{{ r.verwendungszweck or '–' }}</td>
             <td>{{ r.buchung|datum_de }}</td>
             <td>{{ r.wertstellung|datum_de }}</td>
             <td class="text-end">{{ r.betrag|currency }}</td>
-            <td>{{ r.beguenstigter or '–' }}</td>
-            <td>{{ r.verwendungszweck or '–' }}</td>
-            <td>{{ r.buchungstext or '–' }}</td>
-            <td>{{ r.kontoname }}</td>
+            <td>{{ r.waehrung or '–' }}</td>
           </tr>
           {% endfor %}
         </tbody>
