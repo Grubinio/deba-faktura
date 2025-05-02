@@ -71,6 +71,9 @@ def upload():
                 'Auszugsnr.': 'auszugsnr',
                 'Original-Währung': 'original_waehrung',
             })
+            # ersetze alle numpy.nan und pandas.NaT durch None
+            df = df.where(pd.notnull(df), None)
+
 
             # 4) Objekte erzeugen
             raws = []
