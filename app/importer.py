@@ -155,28 +155,50 @@ def upload():
     return render_template('import/upload.html')
 
 
-@importer_bp.route('/preview')
+@importer_bp.route('/preview', methods=['GET','POST'])
 def preview():
-    # hole alle Roh-Daten (ggf. mit Limit und Sort)
-    raws = (
-        TransactionsRaw.query
-        .order_by(TransactionsRaw.import_date.desc())
-        .all()
-    )
+    # —————————————————————
+    # POST: gesendete Kategorien speichern
+    if request.method == 'POST':
+        for key, val in request.form.items():
+            if not key.startswith("category_"):
+                continue
+            raw_id = int(key.split("_",1)[1])
+            # val ist entweder eine Kategorien-ID oder ein Freitext
+            if val.isdigit():
+                # bestehende Kategorie aus DB
+                cat_id = int(val)
+            else:
+                # neuen Namen anlegen und DB-Id holen
+                new_cat = CategoriesTransaction(name=val)
+                db.session.add(new_cat)
+                db.session.flush()
+                cat_id = new_cat.id
+            # raw-Eintrag updaten
+            raw = TransactionsRaw.query.get(raw_id)
+            raw.kategorie_id = cat_id
+        db.session.commit()
+        flash("✅ Kategorien gespeichert", "success")
+        return redirect(request.url)
+    # —————————————————————
 
-    # gruppiere nach „Bank + Währung“
-    groups: dict[str, list[TransactionsRaw]] = {}
+    # Lade ALLE Roh-Daten
+    raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
+    # Lade alle Kategorien für das Dropdown
+    categories = CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
+
+    # Mapping-Logik (optional) vorbefüllen
+    # z.B. aus Excel-Mapping, falls schon implementiert…
+    # r.default_kat_id = …
+
+    # Gruppierung nach Konto wie gehabt
+    groups = {}
     for r in raws:
-        # Original-Kontoname aus dem Import, z.B. "EUR 405278169, LBBW/BW-Bank Stuttgart"
-        raw_name = r.kontoname or ""
-        parts = raw_name.split(',', 1)
-        # Teil nach dem Komma (Bank-Teil), falle zurück auf raw_name wenn kein Komma
-        bank_part = parts[1].strip() if len(parts) > 1 else raw_name
-        # nimm vor dem ersten Leer- oder Slash-Zeichen
-        bank = bank_part.split()[0].split('/')[0]
-        # einfache Kontobezeichnung
-        acct = f"{bank} {r.waehrung}"
-
+        acct = f"{r.kontoname.split(',',1)[1].split()[0]} {r.waehrung}"
         groups.setdefault(acct, []).append(r)
 
-    return render_template('import/preview.html', groups=groups)
+    return render_template(
+        'import/preview.html',
+        groups=groups,
+        categories=categories
+    )
