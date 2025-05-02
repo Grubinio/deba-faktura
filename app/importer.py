@@ -155,7 +155,6 @@ def upload():
 
     return render_template('import/upload.html')
 
-
 @importer_bp.route('/preview', methods=['GET', 'POST'])
 def preview():
     logging.debug("→ Enter preview(), method=%s", request.method)
@@ -168,80 +167,92 @@ def preview():
                     continue
                 raw_id = int(key.split("_", 1)[1])
                 if not val.isdigit():
-                    logging.warning("   Ignoriere ungültige Kategorie für raw_id=%s: %s", raw_id, val)
+                    logging.warning(
+                        "   Ignoriere ungültige Kategorie für raw_id=%s: %s",
+                        raw_id, val
+                    )
                     continue
                 cat_id = int(val)
                 raw = TransactionsRaw.query.get(raw_id)
                 if raw:
                     raw.kategorie_id = cat_id
-                    logging.debug("   Setze raw.id=%s → kategorie_id=%s", raw_id, cat_id)
+                    logging.debug(
+                        "   Setze raw.id=%s → kategorie_id=%s",
+                        raw_id, cat_id
+                    )
             db.session.commit()
             flash("✅ Kategorien gespeichert", "success")
             return redirect(url_for('importer.preview'))
 
         # === GET: Daten vorbereiten ===
+
+        # 1) Rohdaten laden
         raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
         logging.debug("   Geladene Rohdaten: %d Zeilen", len(raws))
 
-        # Kategorien als name→id
-        all_cats = CategoriesTransaction.query.order_by(CategoriesTransaction.name).all()
+        # 2) Kategorien laden
+        all_cats = CategoriesTransaction.query.order_by(
+            CategoriesTransaction.name
+        ).all()
         categories_dict = {c.name: c.id for c in all_cats}
         logging.debug("   Kategorien vorhanden: %s", list(categories_dict.keys()))
 
-        # direkt nach raws und categories_dict:
-        logging.debug("➤ bene_path=%s exists=%s", bene_path, os.path.exists(bene_path))
-        logging.debug("➤ bene_map keys: %s", list(bene_map.keys()))
-        # und bevor du die Regeln auswertest, pro Row:
-        for r in raws:
-            logging.debug(
-                "  Row %s: beguenstigter=%r, buchungstext=%r",
-                r.id,
-                r.beguenstigter,
-                r.buchungstext
-            )
-            # … dann dein bestehender Matching-Code …
-      
-        # Optional: Excel-Mapping für bestimmte Begünstigte
+        # 3) Excel-Mapping für Begünstigte
         bene_map = {}
         bene_path = os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
             '..', 'Temp', 'Kategorien_nach_Begünstigten.xlsx'
         )
+        logging.debug("   bene_path=%s exists=%s", bene_path, os.path.exists(bene_path))
         try:
             df_bene = pd.read_excel(bene_path, engine='openpyxl')
             bene_map = dict(zip(df_bene['Begünstigter'], df_bene['Kategorie']))
-            logging.debug("   Beneficiary-Mapping geladen: %s", bene_map)
+            logging.debug("   bene_map keys: %s", list(bene_map.keys()))
         except FileNotFoundError:
-            logging.warning("   Keine Mapping-Excel für Begünstigte gefunden unter %s", bene_path)
-        except Exception as e:
+            logging.warning("   Keine Mapping-Excel gefunden unter %s", bene_path)
+        except Exception:
             logging.exception("   Fehler beim Einlesen des Beneficiary-Mappings")
 
-        # Default-Kategorie berechnen
+        # 4) Default-Kategorie pro Zeile bestimmen
         for r in raws:
-            # 1) Manuell bereits gesetzt?
+            logging.debug(
+                "   Row %s: beguenstigter=%r, buchungstext=%r",
+                r.id, r.beguenstigter, r.buchungstext
+            )
+
+            # wenn manuell schon gesetzt
             if getattr(r, 'kategorie_id', None):
                 r.default_kat_id = r.kategorie_id
                 continue
 
+            # Hilfsfunktion: normalize
+            def norm(x): return (x or '').strip().upper()
+
+            beg = norm(r.beguenstigter)
+            buch = norm(r.buchungstext)
+
             default_name = None
 
-            # 2) Regel A: Verwendungszweck
-            if r.verwendungszweck and str(r.verwendungszweck).startswith("CAL6A0"):
+            # Regel A: Verwendungszweck
+            if norm(r.verwendungszweck).startswith("CAL6A0"):
                 default_name = "Umbuchung"
-            # 3) Regel B: spezifische Kombination → Tilgung
-            elif (r.beguenstigter == "DEBA BADSYSTEME GMBH"
-                  and r.buchungstext == "3129391900 BMW BANK GMBH"):
+            # Regel B: Deba & BMW teilmatch
+            elif beg == "DEBA BADSYSTEME GMBH" and "BMW BANK GMBH" in buch:
                 default_name = "Tilgung"
-            # 4) Regel C: Excel-Mapping
-            elif bene_map and r.beguenstigter in bene_map:
-                default_name = bene_map[r.beguenstigter]
+            # Regel C: Excel-Mapping
+            else:
+                for key, val in bene_map.items():
+                    if norm(key) == beg:
+                        default_name = val
+                        break
 
-            # 5) ID setzen, wenn Name existiert
             r.default_kat_id = categories_dict.get(default_name)
-            logging.debug("   raw.id=%s → default '%s' → kat_id=%s",
-                          r.id, default_name, r.default_kat_id)
+            logging.debug(
+                "    → raw.id=%s default_name=%r → kat_id=%s",
+                r.id, default_name, r.default_kat_id
+            )
 
-        # Gruppieren nach Konto
+        # 5) Gruppierung nach Konto
         groups = {}
         for r in raws:
             parts = (r.kontoname or "").split(',', 1)
@@ -251,13 +262,13 @@ def preview():
             groups.setdefault(acct, []).append(r)
         logging.debug("   Gruppierung: %s Konten", list(groups.keys()))
 
+        # 6) Rendern
         return render_template(
             'import/preview.html',
             groups=groups,
             categories=all_cats
         )
 
-    except Exception as e:
-        # Fange alle unvorhergesehenen Fehler hier ab
+    except Exception:
         logging.exception("‼️ Unhandled error in preview()")
         abort(500)
