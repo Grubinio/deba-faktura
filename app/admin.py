@@ -1,6 +1,6 @@
 # app/admin.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 from app.forms import DeleteUserForm, EditUserForm
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
@@ -178,7 +178,7 @@ def server_status():
     from datetime import datetime
     import flask
     import time
-    from app.db import get_db_connection
+    from app.db_pool import get_db_connection
 
     # Festplatteninfo
     disk = shutil.disk_usage("/")

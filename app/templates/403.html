@@ -1,23 +1,7 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Seite verboten</title>
-  <style>
-    body {
-      font-family: 'Konkhmer Sleokchher', sans-serif;
-      background-color: #fceff1;
-      color: #443;
-      text-align: center;
-      padding: 5%;
-    }
-    h1 { font-size: 3em; }
-    p  { font-size: 1.2em; }
-    a  { color: #e65f82; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <h1>403 – Forbidden</h1>
-  <p>Du darfst hier nicht rein</p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Zugriff verweigert{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="alert alert-danger">🚫 Zugriff verweigert.</div>
+</div>
+{% endblock %}

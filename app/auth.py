@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 from app.forms import LoginForm, RegisterForm
 
 

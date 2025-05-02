@@ -1,6 +1,6 @@
 # app/buergschaften.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, Response
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 from decimal import Decimal
 from datetime import datetime
 

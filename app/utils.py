@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import session, redirect, url_for, flash
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 
 
 def user_has_role(role_name):

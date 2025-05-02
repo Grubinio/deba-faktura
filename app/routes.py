@@ -3,7 +3,7 @@ from app import app
 from decimal import Decimal
 from datetime import datetime
 import logging
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 
 # Logging
 logging.basicConfig(
@@ -21,7 +21,7 @@ def user_has_role(role_name):
     if 'user_id' not in session:
         return False
 
-    from app.db import get_db_connection
+    from app.db_pool import get_db_connection
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -137,7 +137,7 @@ def kunde_detail(kunde_id):
 
 @app.route('/api/beguenstigter/<auftragsnummer>')
 def api_beguenstigter(auftragsnummer):
-    from app.db import get_db_connection
+    from app.db_pool import get_db_connection
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 

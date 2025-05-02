@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, abort, Response
-from app.db import get_db_connection
+from app.db_pool import get_db_connection
 
 bp = Blueprint('auftraege', __name__, url_prefix='/auftrag') 
 print("✅ Blueprint 'auftraege' erfolgreich registriert!")
