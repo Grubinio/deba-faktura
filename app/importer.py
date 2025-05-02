@@ -92,7 +92,8 @@ def upload():
         except Exception as e:
             db.session.rollback()
             logging.exception("Importer-Fehler beim Einlesen")
-            flash("Beim Import ist ein Fehler aufgetreten.", "danger")
+            # Zeige das Exception-Message direkt im Flash
+            flash(f"Fehler beim Import: {e}", "danger")
             return redirect(request.url)
 
         finally:
