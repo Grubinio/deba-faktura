@@ -71,6 +71,11 @@ def upload():
                 'Auszugsnr.': 'auszugsnr',
                 'Original-Währung': 'original_waehrung',
             })
+            # ❌ Droppe komplett leere Zeilen
+            df = df.dropna(how='all')
+            # ✅ Stelle sicher, dass 'buchung' existiert und nicht NaT ist
+            if 'buchung' in df.columns:
+                df = df[df['buchung'].notna()]
             # ersetze alle numpy.nan und pandas.NaT durch None
             df = df.where(pd.notnull(df), None)
 
