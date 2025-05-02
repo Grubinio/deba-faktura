@@ -213,38 +213,43 @@ def preview():
         except Exception:
             logging.exception("   Fehler beim Einlesen des Beneficiary-Mappings")
 
+        # Hilfsfunktion zur Normalisierung
+        def norm(x):
+            if not x:
+                return ''
+            s = re.sub(r'\s+', ' ', x)  # Newlines/tabs/multispaces → single space
+            return s.strip().upper()
+
+        # Vorab normalisierte Beneficiary-Keys
+        normed_bene = {norm(k): v for k, v in bene_map.items()}
+
         # 4) Default-Kategorie pro Zeile bestimmen
         for r in raws:
             logging.debug(
-                "   Row %s: beguenstigter=%r, buchungstext=%r",
-                r.id, r.beguenstigter, r.buchungstext
+                "   Row %s: beg=%r, buch=%r, verw=%r",
+                r.id, r.beguenstigter, r.buchungstext, r.verwendungszweck
             )
 
-            # wenn manuell schon gesetzt
+            # manuell schon gesetzt?
             if getattr(r, 'kategorie_id', None):
                 r.default_kat_id = r.kategorie_id
                 continue
 
-            # Hilfsfunktion: normalize
-            def norm(x): return (x or '').strip().upper()
-
             beg = norm(r.beguenstigter)
             buch = norm(r.buchungstext)
+            verw = norm(r.verwendungszweck)
 
             default_name = None
 
-            # Regel A: Verwendungszweck
-            if norm(r.verwendungszweck).startswith("CAL6A0"):
-                default_name = "Umbuchung"
-            # Regel B: Deba & BMW teilmatch
-            elif beg == "DEBA BADSYSTEME GMBH" and "BMW BANK GMBH" in buch:
+            # Regel B: Tilgung
+            if beg == "DEBA BADSYSTEME GMBH" and "3129391900 BMW BANK GMBH" in buch:
                 default_name = "Tilgung"
+            # Regel A: Umbuchung
+            elif verw.startswith("CAL6A0"):
+                default_name = "Umbuchung"
             # Regel C: Excel-Mapping
-            else:
-                for key, val in bene_map.items():
-                    if norm(key) == beg:
-                        default_name = val
-                        break
+            elif beg in normed_bene:
+                default_name = normed_bene[beg]
 
             r.default_kat_id = categories_dict.get(default_name)
             logging.debug(
