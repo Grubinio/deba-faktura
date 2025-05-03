@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import hashlib  
 from app import db
-from app.models import TransactionsRaw, CategoriesTransaction
+from app.models import TransactionsRaw, CategoriesTransaction, BeneficiaryMapping, ImportBatch
 from app.utils import user_has_role
 
 # Blueprint wie gehabt
