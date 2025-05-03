@@ -58,14 +58,14 @@ class Transaction(db.Model):
                  backref=db.backref('parent', remote_side=[id]))
 
 class ImportBatch(db.Model):
-    __tablename__ = 'import_batches'
+    __tablename__ = 'CF_import_batches'
     id         = db.Column(db.Integer, primary_key=True)
     file_hash  = db.Column(db.String(64), unique=True, nullable=False)
     filename   = db.Column(db.String(255), nullable=False)
     imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 class BeneficiaryMapping(db.Model):
-    __tablename__ = 'beneficiary_mappings'
+    __tablename__ = 'CD_beneficiary_mappings'
     id             = db.Column(db.Integer, primary_key=True)
     beneficiary    = db.Column(db.String(255), nullable=False)
     category_id    = db.Column(
