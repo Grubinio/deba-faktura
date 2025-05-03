@@ -160,79 +160,33 @@ def upload():
 def preview():
     logging.debug("→ Enter preview(), method=%s", request.method)
     try:
-        # === POST: Kategorien speichern ===
+        # POST: Kategorien speichern
         if request.method == 'POST':
-            logging.debug("   POST-Daten: %s", request.form.to_dict())
             for key, val in request.form.items():
-                if not key.startswith("category_"):
-                    continue
-                raw_id = int(key.split("_", 1)[1])
-                if not val.isdigit():
-                    logging.warning(
-                        "   Ignoriere ungültige Kategorie für raw_id=%s: %s",
-                        raw_id, val
-                    )
-                    continue
-                cat_id = int(val)
-                raw = TransactionsRaw.query.get(raw_id)
-                if raw:
-                    raw.kategorie_id = cat_id
-                    logging.debug(
-                        "   Setze raw.id=%s → kategorie_id=%s",
-                        raw_id, cat_id
-                    )
+                if key.startswith("category_") and val.isdigit():
+                    raw = TransactionsRaw.query.get(int(key.split("_",1)[1]))
+                    raw.kategorie_id = int(val)
             db.session.commit()
             flash("✅ Kategorien gespeichert", "success")
             return redirect(url_for('importer.preview'))
 
-        # === GET: Daten vorbereiten ===
-
-        # 1) Rohdaten laden
+        # GET: Rohdaten + Kategorien laden
         raws = TransactionsRaw.query.order_by(TransactionsRaw.id).all()
-        logging.debug("   Geladene Rohdaten: %d Zeilen", len(raws))
-
-        # 2) Kategorien laden
         all_cats = CategoriesTransaction.query.order_by(
             CategoriesTransaction.name
         ).all()
         categories_dict = {c.name: c.id for c in all_cats}
-        logging.debug("   Kategorien vorhanden: %s", list(categories_dict.keys()))
 
-        # 3) Excel-Mapping für Begünstigte
-        bene_map = {}
-        bene_path = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            '..', 'Temp', 'Kategorien_nach_Begünstigten.xlsx'
-        )
-        logging.debug("   bene_path=%s exists=%s", bene_path, os.path.exists(bene_path))
-        try:
-            df_bene = pd.read_excel(bene_path, engine='openpyxl')
-            bene_map = dict(zip(df_bene['Begünstigter'], df_bene['Kategorie']))
-            logging.debug("   bene_map keys: %s", list(bene_map.keys()))
-        except FileNotFoundError:
-            logging.warning("   Keine Mapping-Excel gefunden unter %s", bene_path)
-        except Exception:
-            logging.exception("   Fehler beim Einlesen des Beneficiary-Mappings")
+        # Beneficiary-Mapping aus DB
+        mappings = BeneficiaryMapping.query.all()
+        # normalize-Hilfsfunktion
+        def norm(s):
+            return re.sub(r'\s+', ' ', (s or '')).strip().upper()
+        normed_map = { norm(m.beneficiary): m.category.name for m in mappings }
 
-        # Hilfsfunktion zur Normalisierung
-        def norm(x):
-            if not x:
-                return ''
-            s = re.sub(r'\s+', ' ', x)  # Newlines, Tabs, Multispaces → single space
-            return s.strip().upper()
-
-        # Vorab normalisierte Beneficiary-Keys
-        normed_bene = {norm(k): v for k, v in bene_map.items()}
-
-        # 4) Default-Kategorie pro Zeile bestimmen
+        # Default-Kategorie bestimmen
         for r in raws:
-            logging.debug(
-                "   Row %s: beg=%r, buch=%r, verw=%r",
-                r.id, r.beguenstigter, r.buchungstext, r.verwendungszweck
-            )
-
-            # manuell schon gesetzt?
-            if getattr(r, 'kategorie_id', None):
+            if r.kategorie_id:
                 r.default_kat_id = r.kategorie_id
                 continue
 
@@ -241,34 +195,25 @@ def preview():
             verw = norm(r.verwendungszweck)
 
             default_name = None
-
             # Regel B: Tilgung
             if beg == "DEBA BADSYSTEME GMBH" and "3129391900 BMW BANK GMBH" in buch:
                 default_name = "Tilgung"
             # Regel A: Umbuchung
             elif verw.startswith("CAL6A0"):
                 default_name = "Umbuchung"
-            # Regel C: Excel-Mapping
-            elif beg in normed_bene:
-                default_name = normed_bene[beg]
+            # Regel C: DB-Mapping
+            elif beg in normed_map:
+                default_name = normed_map[beg]
 
             r.default_kat_id = categories_dict.get(default_name)
-            logging.debug(
-                "    → raw.id=%s default_name=%r → kat_id=%s",
-                r.id, default_name, r.default_kat_id
-            )
 
-        # 5) Gruppierung nach Konto
+        # Gruppierung nach Konto
         groups = {}
         for r in raws:
-            parts = (r.kontoname or "").split(',', 1)
-            bank_part = parts[1] if len(parts) > 1 else parts[0]
-            bank = bank_part.strip().split()[0]
+            bank = (r.kontoname or "").split(',',1)[1].strip().split()[0]
             acct = f"{bank} {r.waehrung}"
             groups.setdefault(acct, []).append(r)
-        logging.debug("   Gruppierung: %s Konten", list(groups.keys()))
 
-        # 6) Rendern
         return render_template(
             'import/preview.html',
             groups=groups,
