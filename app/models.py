@@ -52,7 +52,7 @@ class Transaction(db.Model):
                         db.ForeignKey('CF_transactions.id'))
     splittable     = db.Column(db.Boolean, default=True, nullable=False)
 
-    raw      = db.relationship('CF_TransactionsRaw',
+    raw      = db.relationship('TransactionsRaw',
                  backref=db.backref('clean_entries', cascade='all, delete-orphan'))
     children = db.relationship('Transaction',
                  backref=db.backref('parent', remote_side=[id]))
