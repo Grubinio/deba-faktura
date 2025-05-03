@@ -70,7 +70,7 @@ class BeneficiaryMapping(db.Model):
     beneficiary    = db.Column(db.String(255), nullable=False)
     category_id    = db.Column(
         db.Integer,
-        db.ForeignKey('categories_transactions.id'),
+        db.ForeignKey('CF_categories_transactions.id'),
         nullable=False
     )
     category       = db.relationship('CategoriesTransaction')
