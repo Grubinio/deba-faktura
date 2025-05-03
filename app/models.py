@@ -65,7 +65,7 @@ class ImportBatch(db.Model):
     imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 class BeneficiaryMapping(db.Model):
-    __tablename__ = 'CD_beneficiary_mappings'
+    __tablename__ = 'CF_beneficiary_mappings'
     id             = db.Column(db.Integer, primary_key=True)
     beneficiary    = db.Column(db.String(255), nullable=False)
     category_id    = db.Column(
