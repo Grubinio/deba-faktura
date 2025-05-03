@@ -71,11 +71,6 @@ def upload():
 
 
         try:
-            # 1) Datei speichern
-            file.save(filepath)
-            logging.info(f"Importer: Datei gespeichert: {filepath}")
-
-            # 2) DataFrame einlesen
             if filename.lower().endswith(('.xls', '.xlsx')):
                 xls = pd.ExcelFile(filepath, engine='openpyxl')
                 target_sheet = 'IST-Zahlungsdaten'
