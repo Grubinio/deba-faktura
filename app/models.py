@@ -32,7 +32,7 @@ class TransactionsRaw(db.Model):
         nullable=True
     )
     # Optional: direkte Beziehung
-    category = db.relationship('CF_CategoriesTransaction', backref='raw_entries')
+    category = db.relationship('CategoriesTransaction', backref='raw_entries')
 
 
 class Transaction(db.Model):
@@ -73,4 +73,4 @@ class BeneficiaryMapping(db.Model):
         db.ForeignKey('categories_transactions.id'),
         nullable=False
     )
-    category       = db.relationship('CF_CategoriesTransaction')
+    category       = db.relationship('CategoriesTransaction')
