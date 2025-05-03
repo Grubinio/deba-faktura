@@ -64,10 +64,10 @@ class ImportBatch(db.Model):
     filename   = db.Column(db.String(255), nullable=False)
     imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-class BeneficiaryMapping(db.Model):
+class BuchungstextMapping(db.Model):
     __tablename__ = 'CF_btext_mappings'
     id             = db.Column(db.Integer, primary_key=True)
-    beneficiary    = db.Column(db.String(255), nullable=False)
+    buchungstext    = db.Column(db.String(255), nullable=False)
     category_id    = db.Column(
         db.Integer,
         db.ForeignKey('CF_categories_transactions.id'),

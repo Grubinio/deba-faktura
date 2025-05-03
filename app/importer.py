@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import hashlib  
 from app import db
-from app.models import TransactionsRaw, CategoriesTransaction, BeneficiaryMapping, ImportBatch
+from app.models import TransactionsRaw, CategoriesTransaction, BuchungstextMapping, ImportBatch
 from app.utils import user_has_role
 
 # Blueprint wie gehabt
@@ -172,12 +172,12 @@ def preview():
         ).all()
         categories_dict = {c.name: c.id for c in all_cats}
 
-        # Beneficiary-Mapping aus DB
-        mappings = BeneficiaryMapping.query.all()
+        # Buchungstext-Mapping aus DB
+        mappings = BuchungstextMapping.query.all()
         # normalize-Hilfsfunktion
         def norm(s):
             return re.sub(r'\s+', ' ', (s or '')).strip().upper()
-        normed_map = { norm(m.beneficiary): m.category.name for m in mappings }
+        normed_map = { norm(m.buchungstext): m.category.name for m in mappings }
 
         # Default-Kategorie bestimmen
         for r in raws:
@@ -191,7 +191,7 @@ def preview():
 
             default_name = None
             # Regel B: Tilgung
-            if beg == "DEBA BADSYSTEME GMBH" and "3129391900 BMW BANK GMBH" in buch:
+            if beg == "DEBA BADSYSTEME GMBH" and buch.startswith("3129391900"):
                 default_name = "Tilgung"
             # Regel A: Umbuchung
             elif verw.startswith("CAL6A0"):
