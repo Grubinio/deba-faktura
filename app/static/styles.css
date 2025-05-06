@@ -123,7 +123,7 @@ html, body {
   width: 100%;
   table-layout: fixed;                   /* gleichmäßige Spaltenbreiten */
   font-family: "Arial", sans-serif;    /* Excel-Default */
-  font-size: 0.65rem;                    /* ~11px für Excel-Look */
+  font-size: 0.65rem !important;                    /* ~11px für Excel-Look */
 }
 
 .table-excel th,
