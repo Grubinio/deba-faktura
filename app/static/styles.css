@@ -118,27 +118,17 @@ html, body {
 /* Excel-Style für eine einzelne Tabelle */
 .table-excel {
   /* Gitterlinien wie in Excel */
-  border-collapse: collapse;
-  border: 1px solid #4d4d4d;             /* Rahmen um die Tabelle */
   width: 100%;
-  table-layout: fixed;                   /* gleichmäßige Spaltenbreiten */
-  font-family: "Arial", sans-serif;    /* Excel-Default */
   font-size: 0.65rem !important;                    /* ~11px für Excel-Look */
 }
 
 .table-excel th,
 .table-excel td {
-  border: 1px solid #4d4d4d;             /* feine Gitterlinien */
   padding: 0.2rem 0.25rem;               /* kompakte Zellinnenabstände */
-  white-space: nowrap;                   /* keine Zeilenumbrüche */
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Header-Styling wie in Excel */
 .table-excel thead th {
-  background: #dce6f1;                   /* hellblauer Hintergrund */
-  color: #1f4e79;                        /* dunkles Blau für Text */
   font-weight: 700;
   text-align: center;
   position: sticky;                      /* Header immer sichtbar */
