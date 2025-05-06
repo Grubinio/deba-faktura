@@ -119,17 +119,17 @@ html, body {
 .table-excel {
   /* Gitterlinien wie in Excel */
   border-collapse: collapse;
-  border: 1px solid #d0d7e5;             /* Rahmen um die Tabelle */
+  border: 1px solid #4d4d4d;             /* Rahmen um die Tabelle */
   width: 100%;
   table-layout: fixed;                   /* gleichmäßige Spaltenbreiten */
-  font-family: "Calibri", sans-serif;    /* Excel-Default */
-  font-size: 0.85rem;                    /* ~11px für Excel-Look */
+  font-family: "Arial", sans-serif;    /* Excel-Default */
+  font-size: 0.65rem;                    /* ~11px für Excel-Look */
 }
 
 .table-excel th,
 .table-excel td {
-  border: 1px solid #d0d7e5;             /* feine Gitterlinien */
-  padding: 0.25rem 0.5rem;               /* kompakte Zellinnenabstände */
+  border: 1px solid #4d4d4d;             /* feine Gitterlinien */
+  padding: 0.2rem 0.25rem;               /* kompakte Zellinnenabstände */
   white-space: nowrap;                   /* keine Zeilenumbrüche */
   overflow: hidden;
   text-overflow: ellipsis;
