@@ -35,16 +35,28 @@
             <td>{{ r.waehrung or '–' }}</td>
 
             <td>
-              <select name="category_{{ r.id }}" class="form-select form-select-sm">
-                <option value="">–</option>
+              {# 1. Ermitteln des Default-Namens #}
+              {% set default_name = (categories
+                    | selectattr('id', 'equalto', r.default_kat_id)
+                    | map(attribute='name')
+                    | first) or '' %}
+            
+              {# 2. Input-Feld, das auf die Datalist verweist #}
+              <input
+                type="text"
+                name="category_{{ r.id }}"
+                list="category-list-{{ r.id }}"
+                class="form-control form-control-sm"
+                placeholder="–"
+                value="{{ default_name }}"
+              />
+              {# 3. Datalist mit allen Kategorien #}
+              <datalist id="category-list-{{ r.id }}">
                 {% for c in categories %}
-                <option
-                  value="{{ c.id }}"
-                  {% if r.default_kat_id == c.id %}selected{% endif %}
-                >{{ c.name }}</option>
+                  <option value="{{ c.name }}"></option>
                 {% endfor %}
-              </select>
-            </td>
+              </datalist>
+            </td>            
           </tr>
           {% endfor %}
         </tbody>
