@@ -197,8 +197,8 @@ def preview():
             elif verw.startswith("CAL6A0"):
                 default_name = "Umbuchung"
             # Regel C: DB-Mapping
-            elif beg in normed_map:
-                default_name = normed_map[beg]
+            elif buch in normed_map:
+                default_name = normed_map[buch]
 
             r.default_kat_id = categories_dict.get(default_name)
 
