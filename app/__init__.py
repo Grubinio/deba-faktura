@@ -33,13 +33,16 @@ def load_user(user_id):
 # 🔒 CSRF-Schutz
 csrf = CSRFProtect(app)
 
-# 🧾 Logging
+# 🧾 Logging  (mit sicherem Fallback, falls Zielpfad nicht beschreibbar ist)
 log_path = '/var/log/faktura/faktura_app.log' if not app.debug else os.path.join(os.path.dirname(__file__), '../error.log')
-logging.basicConfig(
-    filename=log_path,
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-)
+log_format = '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+
+try:
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    logging.basicConfig(filename=log_path, level=logging.DEBUG, format=log_format)
+except OSError:
+    # Fallback auf STDERR, damit die App nicht bereits beim Import mit 500 ausfällt
+    logging.basicConfig(level=logging.DEBUG, format=log_format)
 
 # 🧠 Eigene Jinja-Filter
 from .filters import format_currency, format_datum
