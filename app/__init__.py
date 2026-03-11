@@ -25,7 +25,10 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return load_user(user_id)  # oder dein konkreter Ladecode
+    # Aktuell wird Authentifizierung über Flask-Session in app/auth.py umgesetzt.
+    # Damit Flask-Login bei gesetzter user_id nicht in eine Endlosrekursion läuft,
+    # geben wir hier explizit None zurück, bis ein echtes User-Model angebunden ist.
+    return None
 
 # 🔒 CSRF-Schutz
 csrf = CSRFProtect(app)
