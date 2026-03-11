@@ -6,11 +6,17 @@ import logging
 from app.db_pool import get_db_connection
 
 # Logging
-logging.basicConfig(
-    filename='/var/www/faktura/error.log',
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-)
+try:
+    logging.basicConfig(
+        filename='/var/www/faktura/error.log',
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    )
+except OSError:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    )
 
 # DEBUG-Modus
 app.config['DEBUG'] = True
