@@ -6,7 +6,6 @@ from flask import (
     flash, redirect, url_for, abort
 )
 from werkzeug.utils import secure_filename
-import pandas as pd
 import hashlib  
 from app import db
 from app.models import TransactionsRaw, CategoriesTransaction, BuchungstextMapping, ImportBatch
@@ -34,6 +33,13 @@ ALLOWED_EXTENSIONS = {'xlsx', 'csv'}  # .xls fliegt raus
 
 @importer_bp.route('/', methods=['GET', 'POST'])
 def upload():
+    try:
+        import pandas as pd
+    except ModuleNotFoundError:
+        logging.exception("Importer-Abhängigkeit fehlt: pandas")
+        flash("Importer ist aktuell nicht verfügbar (fehlende Server-Abhängigkeit: pandas).", "danger")
+        return render_template('import/denied.html'), 503
+
     if request.method == 'POST':
         file = request.files.get('file')
         if not file:
