@@ -1,5 +1,27 @@
 import os
 
+
+def _mysql_sqlalchemy_uri():
+    """
+    Baut eine robuste SQLAlchemy-URI mit verfügbarem MySQL-Treiber.
+    Hintergrund: In Produktion führt ein fehlendes `pymysql` beim App-Import
+    schnell zu einem generischen Apache-500.
+    """
+    host = os.getenv('DB_HOST', 'localhost')
+    user = os.getenv('DB_USER', 'faktura_user')
+    password = os.getenv('DB_PASSWORD', 'meinpasswort')
+    db_name = os.getenv('DB_NAME', 'faktura_app')
+
+    # Bevorzugt bestehenden Default (pymysql), fällt aber automatisch auf
+    # mysql-connector zurück, das im Projekt ebenfalls genutzt wird.
+    try:
+        import pymysql  # noqa: F401
+        driver = 'mysql+pymysql'
+    except ModuleNotFoundError:
+        driver = 'mysql+mysqlconnector'
+
+    return f"{driver}://{user}:{password}@{host}/{db_name}"
+
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'fallback123')
     SESSION_COOKIE_HTTPONLY = True
@@ -17,8 +39,6 @@ class Config:
     DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", 5))
     
     # → SQLAlchemy-URI aus deinen DB-Variablen zusammenbauen
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
-    )
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', _mysql_sqlalchemy_uri())
     # → Deaktiviert den Change-Tracker (sorgt für weniger Overhead)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
