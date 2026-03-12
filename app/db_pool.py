@@ -19,7 +19,7 @@ def _create_pool():
 
 
 def get_db_connection():
-        global _pool
+    global _pool
 
     if _pool is None:
         try:
